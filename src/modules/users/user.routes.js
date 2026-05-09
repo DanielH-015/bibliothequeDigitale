@@ -1,25 +1,33 @@
-import { Router } from 'express';
-import { userController } from './user.controller.js';
-import { authMiddleware } from '../../middlewares/auth.middleware.js';
+import { Router } from '../../utils/router.js';
+import { userService } from './user.service.js';
+import { verify, requireAdmin } from '../../middlewares/auth.middleware.js';
+import { validateCreate, validateUpdate } from '../../middlewares/user.middleware.js';
 
-class UserRoutes {
-  constructor() {
-    this.router = Router();
-    this.initializeRoutes();
-  }
+const router = Router();
 
-  initializeRoutes() {
-    // Global protection of all routes in this router with the verifyToken middleware to ensure that only authenticated users can access these routes
-    this.router.use(authMiddleware.verifyToken);
-    this.router.use(authMiddleware.requireAdmin);
+router.use(verify);
+router.use(requireAdmin);
 
-    // Protected routes
-    this.router.get('/', userController.getAllUsers);
-    this.router.post('/', userController.createUser);
-    this.router.get('/:id', userController.getUserById);
-    this.router.put('/:id', userController.updateUser);
-    this.router.delete('/:id', userController.deleteUser);
-  }
-}
+router.get('/', async () => {
+  return userService.getAll();
+});
 
-export const userRoutes = new UserRoutes().router;
+router.post('/', validateCreate, async (req) => {
+  const payload = req.body;
+  return userService.create(payload);
+});
+
+router.get('/:id', async (req) => {
+  return userService.getById(parseInt(req.params.id));
+});
+
+router.put('/:id', validateUpdate, async (req) => {
+  const payload = req.body;
+  return userService.update(parseInt(req.params.id), payload);
+});
+
+router.delete('/:id', async (req) => {
+  return userService.delete(parseInt(req.params.id));
+});
+
+export const userRoutes = router;

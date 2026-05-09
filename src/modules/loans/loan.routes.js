@@ -1,27 +1,34 @@
-import { Router } from 'express';
-import { loanController } from './loan.controller.js';
-import { authMiddleware } from '../../middlewares/auth.middleware.js';
+import { Router } from '../../utils/router.js';
+import { loanService } from './loan.service.js';
+import { verify, requireAdmin, requireLibrarianOrAdmin } from '../../middlewares/auth.middleware.js';
+import { validateCreate } from '../../middlewares/loan.middleware.js';
 
-class LoanRoutes {
-  constructor() {
-    this.router = Router();
-    this.initializeRoutes();
-  }
+const router = Router();
 
-  initializeRoutes() {
-    // Only authenticated users can access these routes (Admin, Librarian, Student)
-    this.router.use(authMiddleware.verifyToken);
+// Only authenticated users can access these routes (Admin, Librarian, Student)
+router.use(verify);
 
-    // Routes for Admin and Librarian to manage loans
-    this.router.get('/', authMiddleware.requireAdmin, loanController.getAllLoans);
-    this.router.post('/', authMiddleware.requireAdmin, loanController.createLoan);
-    this.router.put('/:id/return', authMiddleware.requireAdmin, loanController.returnLoan);
-    this.router.delete('/:id', authMiddleware.requireAdmin, loanController.cancelLoan);
+// Routes for Admin and Librarian to manage loans
+router.get('/', requireAdmin, async () => {
+  return loanService.getAll();
+});
 
-    // Route: A student (or an admin) can view a student's loan history
-    this.router.get('/student/:studentId', loanController.getLoansByStudent);
-  }
+router.post('/', requireAdmin, validateCreate, async (req) => {
+  const payload = req.body;
+  return loanService.create(payload);
+});
 
-}
+router.put('/:id/return', requireLibrarianOrAdmin, async (req) => {
+  return loanService.returnLoan(parseInt(req.params.id));
+});
 
-export const loanRoutes = new LoanRoutes().router;
+router.delete('/:id', requireAdmin, async (req) => {
+  return loanService.cancel(parseInt(req.params.id));
+});
+
+// Route: A student (or an admin) can view a student's loan history
+router.get('/student/:studentId', async (req) => {
+  return loanService.getByStudentId(parseInt(req.params.studentId));
+});
+
+export const loanRoutes = router;

@@ -1,38 +1,44 @@
-import { Router } from 'express';
-import { studentController } from './student.controller.js';
-import { authMiddleware } from '../../middlewares/auth.middleware.js';
-import { uploadMiddleware } from '../../middlewares/upload.middleware.js';
+import { Router } from '../../utils/router.js';
+import { studentService } from './student.service.js';
+import { verify, requireAdmin } from '../../middlewares/auth.middleware.js';
+import { upload } from '../../middlewares/upload.middleware.js';
+import { validateCreate, validateUpdate } from '../../middlewares/student.middleware.js';
 
+const router = Router();
 
-class StudentRoutes {
-  constructor() {
-    this.router = Router();
-    this.initializeRoutes();
-  }
+router.use(verify);
 
-  initializeRoutes() {
-    // Global protection of all routes in this router with the verifyToken middleware
-    this.router.use(authMiddleware.verifyToken);
+router.get('/', requireAdmin, async () => {
+  return studentService.getAll();
+});
 
-    // Admin can see all students and create new ones
-    this.router.get('/', authMiddleware.requireAdmin, studentController.getAllStudents);
-    this.router.post('/', authMiddleware.requireAdmin, studentController.createStudent);
+router.post('/', requireAdmin, validateCreate, async (req) => {
+  const payload = req.body;
+  return studentService.create(payload);
+});
 
-    // The librarian scans the QR code
-    this.router.get('/scan/:qrCode', studentController.getStudentByQrCode);
+router.get('/scan/:qrCode', async (req) => {
+  return studentService.getByQrCode(req.params.qrCode);
+});
 
-    // The student can view and update their own profile
-    this.router.get('/:id', studentController.getStudentById);
-    this.router.put('/:id', studentController.updateStudent);
+router.get('/:id', async (req) => {
+  return studentService.getById(parseInt(req.params.id));
+});
 
-    // The student can upload a profile picture(the field name in the form should be 'photo')
-    this.router.post('/:id/photo', uploadMiddleware.upload.single('photo'), studentController.uploadPhoto);
-    
-    // Admin can delete a student account (only if the student has no active loans or reservations)
-    this.router.delete('/:id', authMiddleware.requireAdmin, studentController.deleteStudent);
+router.put('/:id', validateUpdate, async (req) => {
+  const payload = req.body;
+  return studentService.update(parseInt(req.params.id), payload);
+});
 
-    
-  }
-}
+router.post('/:id/photo', upload.single('photo'), async (req) => {
+  if (!req.file) throw new Error("No image provided.");
+  const photoPath = req.file.path.replace(/\\/g, '/');
+  await studentService.uploadPhoto(parseInt(req.params.id), photoPath);
+  return { message: "Photo uploaded successfully.", photoUrl: photoPath };
+});
 
-export const studentRoutes = new StudentRoutes().router;
+router.delete('/:id', requireAdmin, async (req) => {
+  return studentService.delete(parseInt(req.params.id));
+});
+
+export const studentRoutes = router;

@@ -1,23 +1,31 @@
-import { Router } from 'express';
-import { bookController } from './book.controller.js';
-import { authMiddleware } from '../../middlewares/auth.middleware.js';
+import { Router } from '../../utils/router.js';
+import { bookService } from './book.service.js';
+import { verify, requireAdmin } from '../../middlewares/auth.middleware.js';
+import { validateCreate, validateUpdate } from '../../middlewares/book.middleware.js';
 
-class BookRoutes {
-  constructor() {
-    this.router = Router();
-    this.initializeRoutes();
-  }
+const router = Router();
 
-  initializeRoutes() {
-    // Routes of consultation accessible to all authenticated users (Admin, Librarian, Student)
-    this.router.get('/', authMiddleware.verifyToken, bookController.getAllBooks);
-    this.router.get('/:id', authMiddleware.verifyToken, bookController.getBookById);
+router.get('/', verify, async () => {
+  return bookService.getAll();
+});
 
-    // Routes of modification accessible only to Admin
-    this.router.post('/', authMiddleware.verifyToken, authMiddleware.requireAdmin, bookController.createBook);
-    this.router.put('/:id', authMiddleware.verifyToken, authMiddleware.requireAdmin, bookController.updateBook);
-    this.router.delete('/:id', authMiddleware.verifyToken, authMiddleware.requireAdmin, bookController.deleteBook);
-  }
-}
+router.get('/:id', verify, async (req) => {
+  return bookService.getById(parseInt(req.params.id));
+});
 
-export const bookRoutes = new BookRoutes().router;
+// Routes of modification accessible only to Admin
+router.post('/', verify, requireAdmin, validateCreate, async (req) => {
+  const payload = req.body;
+  return bookService.create(payload);
+});
+
+router.put('/:id', verify, requireAdmin, validateUpdate, async (req) => {
+  const payload = req.body;
+  return bookService.update(parseInt(req.params.id), payload);
+});
+
+router.delete('/:id', verify, requireAdmin, async (req) => {
+  return bookService.delete(parseInt(req.params.id));
+});
+
+export const bookRoutes = router;

@@ -1,42 +1,42 @@
 import jwt from 'jsonwebtoken';
-import { GLOBAL_CONFIG } from '../config/env.js';
 
-class AuthMiddleware {
-  
-  // Methode for verifying the JWT token sent in the Authorization header of the request
-  verifyToken(req, res, next) {
-    const authHeader = req.headers['authorization'];
-    
-    if (!authHeader) {
-      return res.status(403).json({ message: "No token provided." });
-    }
+export const verify = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
 
-    // The expected format is "Bearer <token>"
-    const token = authHeader.split(' ')[1];
-
-    if (!token) {
-      return res.status(403).json({ message: "Invalid token format." });
-    }
-
-    try {
-      const decoded = jwt.verify(token, GLOBAL_CONFIG.JWT_SECRET);
-      // We attach the decoded user information to the request object for use in the next middlewares or route handlers
-      req.user = decoded;
-      next(); // Authorise the user to continue if the token is valid
-    } catch (error) {
-      return res.status(401).json({ message: "Unauthorized. Token expired or invalid." });
-    }
+  if (!token) {
+    return res.status(401).json({ message: 'Access denied. No token provided.' });
   }
 
-  // Methode for verifying if the user has the ADMIN role
-  requireAdmin(req, res, next) {
-    if (req.user && req.user.role === 'ADMIN') {
-      next(); // Authorize the user to continue if they have the ADMIN role
-    } else {
-      return res.status(403).json({ message: "Access denied. Admin role required." });
-    }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded; // add user data to request object
+    next();
+  } catch (error) {
+    res.status(403).json({ message: 'Invalid or expired token.' });
   }
-}
+};
 
-// We instanciate the class to be able to use the middleware in our routes later
-export const authMiddleware = new AuthMiddleware();
+export const requireAdmin = (req, res, next) => {
+  // We assume that the verify middleware has already been called and that req.user exists
+  if (!req.user) {
+    return res.status(401).json({ message: 'Authentication required.' });
+  }
+
+  if (req.user.role !== 'ADMIN') {
+    return res.status(403).json({ message: 'Access denied. Admin privileges required.' });
+  }
+
+  next();
+};
+
+export const requireLibrarianOrAdmin = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ message: 'Authentication required.' });
+  }
+
+  if (req.user.role !== 'ADMIN' && req.user.role !== 'LIBRARIAN') {
+    return res.status(403).json({ message: 'Access denied. Librarian or Admin privileges required.' });
+  }
+
+  next();
+};
