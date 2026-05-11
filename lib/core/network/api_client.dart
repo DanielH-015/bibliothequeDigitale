@@ -44,6 +44,66 @@ class ApiClient {
     }
   }
 
+    // --- AUTHENTICATION EXTENSIONS ---
+  
+  // Register a new user
+  static Future<Map<String, dynamic>> register(Map<String, dynamic> data) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/register'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(data),
+      );
+      final body = jsonDecode(response.body);
+      
+      if (response.statusCode == 200) {
+        return {'success': true, 'message': body['message']};
+      }
+      return {'success': false, 'message': body['message'] ?? 'Registration failed'};
+    } catch (e) {
+      return {'success': false, 'message': 'Connection error: $e'};
+    }
+  }
+
+  // Request password reset
+  static Future<Map<String, dynamic>> forgotPassword(String email) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/forgot-password'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email}),
+      );
+      final body = jsonDecode(response.body);
+      
+      if (response.statusCode == 200) {
+        return {'success': true, 'message': body['message']};
+      }
+      return {'success': false, 'message': body['message'] ?? 'Request failed'};
+    } catch (e) {
+      return {'success': false, 'message': 'Connection error: $e'};
+    }
+  }
+
+  // Verify email using deep link token
+  static Future<Map<String, dynamic>> verifyEmail(String token) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/verify-email'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'token': token}),
+      );
+      final body = jsonDecode(response.body);
+      
+      if (response.statusCode == 200) {
+        return {'success': true, 'message': body['message']};
+      }
+      return {'success': false, 'message': body['message'] ?? 'Verification failed'};
+    } catch (e) {
+      return {'success': false, 'message': 'Connection error: $e'};
+    }
+  }
+
+
   // Fetch the full student profile including QR Code and Loans
   static Future<Map<String, dynamic>?> getStudentProfile() async {
     try {
@@ -199,6 +259,26 @@ class ApiClient {
       return false;
     }
   }
+
+    // Send the new password to the backend
+  static Future<Map<String, dynamic>> resetPassword(Map<String, dynamic> data) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/reset-password'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(data),
+      );
+      final body = jsonDecode(response.body);
+      
+      if (response.statusCode == 200) {
+        return {'success': true, 'message': body['message']};
+      }
+      return {'success': false, 'message': body['message'] ?? 'Reset failed'};
+    } catch (e) {
+      return {'success': false, 'message': 'Connection error: $e'};
+    }
+  }
+
 
 
 
