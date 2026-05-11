@@ -16,6 +16,8 @@ model User {
   role            Role      @default(STUDENT)
   isValid         Boolean   @default(false)
   activationToken String?
+  resetPasswordToken   String?
+  resetPasswordExpires DateTime?
   profileImage    String?
   createdAt       DateTime  @default(now())
   

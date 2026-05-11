@@ -78,12 +78,25 @@ class StudentService {
         firstName,
         lastName,
         email,
+        // Using "upsert" instead of "update"
+        // It updates the profile if it exists, or creates it if it doesn't!
         studentProfile: {
-          update: { 
-            registrationNumber, 
-            classroom, 
-            studyStream, 
-            parentEmail 
+          upsert: {
+            create: {
+              registrationNumber: registrationNumber || `TEMP-${Date.now()}`,
+              classroom: classroom || 'N/A',
+              studyStream: studyStream || 'N/A',
+              parentEmail: parentEmail || 'N/A',
+              birthDate: new Date(), // Required by DB but not in the mobile form
+              qrCodeId: uuidv4() 
+ // Generate a unique QR Code ID
+            },
+            update: { 
+              registrationNumber, 
+              classroom, 
+              studyStream, 
+              parentEmail 
+            }
           }
         }
       },
@@ -93,6 +106,7 @@ class StudentService {
     updatedStudent.password = undefined;
     return updatedStudent;
   }
+
 
   getByQrCode = async (qrCodeScanned) => {
     const studentProfile = await this.prisma.student.findUnique({
