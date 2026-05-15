@@ -1,0 +1,55 @@
+ <div class="header-action">
+  <div>
+    <h1>Loans & Mobile Scan</h1>
+    <p>Manage book loans and use your mobile app to scan student cards.</p>
+  </div>
+  <button class="btn btn-primary" (click)="activateScan()" *ngIf="!isScanActive">
+    <span class="icon">📱</span> Start Scan
+  </button>
+</div>
+
+<!-- Scan Waiting Area -->
+<div class="scan-container card" *ngIf="isScanActive">
+  <div class="radar-animation">
+    <div class="radar-circle"></div>
+    <div class="radar-circle delay-1"></div>
+    <div class="radar-circle delay-2"></div>
+    <div class="device-icon">📱</div>
+  </div>
+  
+  <h2>Waiting for Mobile Scan...</h2>
+  <p>Open the Library App on your phone and scan a student's QR code.</p>
+  
+  <button class="btn btn-outline" (click)="cancelScan()">Cancel</button>
+</div>
+
+<!-- Active Loans Table -->
+<div class="table-container" *ngIf="!isScanActive">
+  <table>
+    <thead>
+      <tr>
+        <th>Student</th>
+        <th>Book Title</th>
+        <th>Date Borrowed</th>
+        <th>Due Date</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <strong>Student Test</strong><br>
+          <span class="sub-text">student@test.com</span>
+        </td>
+        <td>Clean Code</td>
+        <td>May 10, 2026</td>
+        <td>May 24, 2026</td>
+        <td><span class="badge badge-warning">Pending</span></td>
+        <td>
+          <button class="btn btn-primary btn-small">Return Book</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,96 @@
+<div class="header-action">
+  <div>
+    <h1>Library Catalogue</h1>
+    <p>Manage the inventory of books in the library.</p>
+  </div>
+  <button class="btn btn-primary" (click)="toggleAddForm()" *ngIf="!showAddForm">
+    + Add New Book
+  </button>
+</div>
+
+<!-- Add Book Form -->
+<div class="card form-card" *ngIf="showAddForm">
+  <h2>Add Book to Inventory</h2>
+  <form [formGroup]="bookForm" (ngSubmit)="onSubmit()">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" formControlName="title" placeholder="The Great Gatsby">
+      </div>
+      <div class="form-group">
+        <label>Author</label>
+        <input type="text" formControlName="author" placeholder="F. Scott Fitzgerald">
+      </div>
+      <div class="form-group">
+        <label>ISBN</label>
+        <input type="text" formControlName="isbn" placeholder="978-0743273565">
+      </div>
+      <div class="form-group">
+        <label>Category</label>
+        <select formControlName="category">
+          <option value="Fiction">Fiction</option>
+          <option value="Science">Science</option>
+          <option value="History">History</option>
+          <option value="Technology">Technology</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Available Stock</label>
+        <input type="number" formControlName="stock" min="1">
+      </div>
+    </div>
+    
+    <div class="form-actions">
+      <button type="button" class="btn btn-outline" (click)="toggleAddForm()">Cancel</button>
+      <button type="submit" class="btn btn-primary" [disabled]="bookForm.invalid">Save Book</button>
+    </div>
+  </form>
+</div>
+
+<!-- Books Table -->
+<div class="table-container" *ngIf="!showAddForm">
+  <table>
+    <thead>
+      <tr>
+        <th>Cover</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Category</th>
+        <th>Stock</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <div class="book-cover-placeholder">B</div>
+        </td>
+        <td>
+          <strong>Clean Code</strong><br>
+          <span class="isbn-text">ISBN: 978-0132350884</span>
+        </td>
+        <td>Robert C. Martin</td>
+        <td>Technology</td>
+        <td><span class="badge badge-success">5 Available</span></td>
+        <td>
+          <button class="btn btn-outline btn-small">Edit</button>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <div class="book-cover-placeholder">B</div>
+        </td>
+        <td>
+          <strong>Sapiens</strong><br>
+          <span class="isbn-text">ISBN: 978-0062316097</span>
+        </td>
+        <td>Yuval Noah Harari</td>
+        <td>History</td>
+        <td><span class="badge badge-warning">1 Available</span></td>
+        <td>
+          <button class="btn btn-outline btn-small">Edit</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
