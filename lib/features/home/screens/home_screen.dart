@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/network/api_client.dart';
 import '../../../shared/widgets/custom_snackbar.dart';
 import '../../auth/screens/login_screen.dart';
 import '../../profile/screens/profile_screen.dart';
 import '../../catalogue/screens/catalogue_screen.dart';
-import '../../../core/theme/app_theme.dart';
+import '../../profile/screens/settings_screen.dart';
+
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -51,6 +52,49 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
   }
+
+  Future<void> _cancelReservation(int reservationId) async {
+    // ask user confirmation
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        title: const Text('Cancel Reservation'),
+        content: const Text('Are you sure you want to cancel this reservation?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('No, keep it', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text('Yes, cancel', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    // If confirmed, we rollback by the API
+    if (confirm == true) {
+      setState(() => _isLoading = true);
+      final success = await ApiClient.cancelReservation(reservationId);
+      
+      if (mounted) {
+        if (success) {
+          CustomSnackBar.showSuccess(context, 'Reservation cancelled successfully');
+          _fetchProfile(); // Reload datas 
+        } else {
+          setState(() => _isLoading = false);
+          CustomSnackBar.showError(context, 'Failed to cancel reservation');
+        }
+      }
+    }
+  }
+
 
   void _showQrCodeDialog(BuildContext context) {
     if (_studentData == null || _studentData!['studentProfile'] == null) {
@@ -220,7 +264,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 15),
-            Row(
+                        Row(
               children: [
                 _buildActionCard(
                   context,
@@ -239,6 +283,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
+
             const SizedBox(height: 35),
 
             // --- 2. PENDING RESERVATIONS SECTION ---
@@ -326,6 +371,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           ],
                         ),
                       ),
+                      IconButton(
+                        icon: const Icon(Icons.cancel_outlined, color: Colors.red),
+                        tooltip: 'Cancel Reservation',
+                        onPressed: () => _cancelReservation(res['id']),
+                      ),
                     ],
                   ),
                 );
@@ -406,18 +456,13 @@ class _HomeScreenState extends State<HomeScreen> {
           PopupMenuButton<String>(
             icon: const Icon(Icons.menu),
             onSelected: (value) async {
-              if (value == 'theme') {
-                final isCurrentlyDark =
-                    Theme.of(context).brightness == Brightness.dark;
-
-                // 1. Change the theme visually across the app
-                AppTheme.themeNotifier.value = isCurrentlyDark
-                    ? ThemeMode.light
-                    : ThemeMode.dark;
-
-                // 2. Save the user's preference to local storage
-                final prefs = await SharedPreferences.getInstance();
-                await prefs.setBool('isDarkMode', !isCurrentlyDark);
+              if (value == 'settings') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SettingsScreen(),
+                  ),
+                );
               } else if (value == 'logout') {
                 _handleLogout();
               }
@@ -425,19 +470,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
             itemBuilder: (BuildContext context) {
               return [
-                PopupMenuItem<String>(
-                  value: 'theme',
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.palette_outlined,
-                        color: Theme.of(context).iconTheme.color,
-                      ),
-                      const SizedBox(width: 10),
-                      const Text('Customize Theme'),
-                    ],
-                  ),
-                ),
                 PopupMenuItem<String>(
                   value: 'settings',
                   child: Row(

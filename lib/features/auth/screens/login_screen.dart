@@ -5,7 +5,8 @@ import '../../home/screens/home_screen.dart';
 import 'register_screen.dart';
 import 'forgot_password_screen.dart';
 import '../../../core/network/deep_link_handler.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../admin/screens/admin_home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -20,13 +21,12 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   bool _obscurePassword = true;
 
-    @override
+  @override
   void initState() {
     super.initState();
     // Initialize deep link listener when the login screen loads
     DeepLinkHandler.init(context);
   }
-
 
   Future<void> _handleLogin() async {
     final email = _emailController.text.trim();
@@ -50,11 +50,28 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (success) {
         CustomSnackBar.showSuccess(context, 'Login successful!');
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-        );
+
+        // fetching of user data with role
+        final prefs = await SharedPreferences.getInstance();
+        final role = prefs.getString('user_role') ?? 'STUDENT';
+
+        // check if the screen is still on show
+        if (!mounted) return;
+
+        // 3. Real detection and Routing
+        if (role == 'ADMIN' || role == 'LIBRARIAN') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const AdminHomeScreen()),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+          );
+        }
       } else {
+        if (!mounted) return;
         CustomSnackBar.showError(context, 'Incorrect email or password');
       }
     }

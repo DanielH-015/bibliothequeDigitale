@@ -22,15 +22,16 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     final int bookId = widget.book['id'];
     
     // Call our Node.js backend
-    final success = await ApiClient.reserveBook(bookId);
+    final result = await ApiClient.reserveBook(bookId);
     
     if (mounted) {
       setState(() => _isReserving = false);
-      if (success) {
+      if (result['success'] == true) {
         CustomSnackBar.showSuccess(context, 'Reservation successful! You have 3 days to pick it up.');
-        Navigator.pop(context); // Go back to catalogue
+        Navigator.pop(context, true); // Go back with success to refresh dashboard
       } else {
-        CustomSnackBar.showError(context, 'Failed to reserve. It might be out of stock or you already reserved it.');
+        // Show the specific error message from backend "Limit of 3 reached"
+        CustomSnackBar.showError(context, result['message'] ?? 'Failed to reserve book.');
       }
     }
   }

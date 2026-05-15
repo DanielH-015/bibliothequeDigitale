@@ -13,6 +13,15 @@ class ApiClient {
   static const String _tokenKey = 'jwt_token';
   static const String _userIdKey = 'user_id'; // We need to store the ID returned by backend
 
+  // Helper method to format network errors in a user-friendly way
+  static String _handleNetworkError(dynamic e) {
+    final errorString = e.toString();
+    if (errorString.contains('SocketException') || errorString.contains('ClientException')) {
+      return 'Unable to reach the server. Please check your internet connection.';
+    }
+    return 'An unexpected error occurred.';
+  }
+
   // Authenticate user, save JWT token and User ID
   static Future<bool> login(String email, String password) async {
     try {
@@ -25,17 +34,22 @@ class ApiClient {
         }),
       );
 
-      // 200 OK means credentials are valid
+      // 200 OK (credentials are valid)
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         
-        // Save the received token AND the user ID securely
+        // Save the received token, user ID, AND user role securely
         if (data['token'] != null && data['user'] != null) {
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString(_tokenKey, data['token']);
           await prefs.setInt(_userIdKey, data['user']['id']); // Storing the database user ID
+          
+          // Save the user's role
+          await prefs.setString('user_role', data['user']['role']);
+          
           return true;
         }
+
       }
       return false;
     } catch (e) {
@@ -61,7 +75,7 @@ class ApiClient {
       }
       return {'success': false, 'message': body['message'] ?? 'Registration failed'};
     } catch (e) {
-      return {'success': false, 'message': 'Connection error: $e'};
+      return {'success': false, 'message': _handleNetworkError(e)};
     }
   }
 
@@ -80,7 +94,7 @@ class ApiClient {
       }
       return {'success': false, 'message': body['message'] ?? 'Request failed'};
     } catch (e) {
-      return {'success': false, 'message': 'Connection error: $e'};
+      return {'success': false, 'message': _handleNetworkError(e)};
     }
   }
 
@@ -99,7 +113,7 @@ class ApiClient {
       }
       return {'success': false, 'message': body['message'] ?? 'Verification failed'};
     } catch (e) {
-      return {'success': false, 'message': 'Connection error: $e'};
+      return {'success': false, 'message': _handleNetworkError(e)};
     }
   }
 
@@ -173,7 +187,7 @@ class ApiClient {
   }
 
     // Make a reservation for a specific book
-  static Future<bool> reserveBook(int bookId) async {
+  static Future<Map<String, dynamic>> reserveBook(int bookId) async {
     try {
       final headers = await getAuthHeaders();
       
@@ -184,18 +198,41 @@ class ApiClient {
         body: jsonEncode({ 'bookId': bookId }),
       );
 
-      // Status 200 or 201 means creation was successful
+      final data = jsonDecode(response.body);
+
+      // if creation was successful completed
       if (response.statusCode == 200 || response.statusCode == 201) {
+        return {'success': true};
+      } else {
+        return {'success': false, 'message': data['message'] ?? 'Failed to reserve book.'};
+      }
+    } catch (e) {
+      return {'success': false, 'message': _handleNetworkError(e)};
+    }
+  }
+
+    // Rollback a booking
+  static Future<bool> cancelReservation(int reservationId) async {
+    try {
+      final headers = await getAuthHeaders();
+      
+      final response = await http.delete(
+        Uri.parse('$baseUrl/reservations/$reservationId'), 
+        headers: headers,
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
         return true;
       } else {
-        debugPrint('Failed to reserve book. Status: ${response.statusCode} - ${response.body}');
+        debugPrint('Failed to cancel reservation. Status: ${response.statusCode}');
         return false;
       }
     } catch (e) {
-      debugPrint('Reservation Exception: $e');
+      debugPrint('Cancellation Exception: $e');
       return false;
     }
   }
+
 
   // Update student text information
   static Future<bool> updateStudentProfile(Map<String, dynamic> data) async {
@@ -275,7 +312,7 @@ class ApiClient {
       }
       return {'success': false, 'message': body['message'] ?? 'Reset failed'};
     } catch (e) {
-      return {'success': false, 'message': 'Connection error: $e'};
+      return {'success': false, 'message': _handleNetworkError(e)};
     }
   }
 
