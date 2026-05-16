@@ -7,6 +7,12 @@
   justify-content: space-between;
   padding: 0 32px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  
+  position: fixed;
+  top: 0;
+  left: 250px;
+  right: 0;
+  z-index: 900;
 }
 
 .header-search input {

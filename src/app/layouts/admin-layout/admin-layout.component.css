@@ -1,7 +1,8 @@
 .admin-wrapper {
   display: flex;
-  min-height: 100vh;
-  width: 100%;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
 }
 
 .main-content {
@@ -10,7 +11,8 @@
   margin-left: 250px; 
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .page-container {
@@ -18,4 +20,7 @@
   padding: 32px;
   background-color: var(--background-light);
   overflow-y: auto;
+  /* Push down content because the header is now completely fixed at the top */
+  margin-top: 80px;
+  height: calc(100vh - 80px);
 }

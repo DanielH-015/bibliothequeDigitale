@@ -1,108 +1,143 @@
-.header-action {
+/* TABS NAVIGATION */
+.tabs-nav {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  gap: 16px;
   margin-bottom: 24px;
+  border-bottom: 1px solid #E2E8F0;
+  padding-bottom: 8px;
 }
 
-.header-action h1 {
-  margin-bottom: 4px;
-}
-
-.header-action p {
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 600;
   color: var(--text-secondary);
-  font-size: 14px;
-  margin: 0;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.icon {
-  margin-right: 6px;
-  font-size: 16px;
+.tab-btn:hover {
+  background-color: rgba(0,0,0,0.02);
 }
 
-.sub-text {
-  font-size: 12px;
-  color: var(--text-secondary);
+.tab-btn.active {
+  color: var(--primary-color);
+  background-color: rgba(255, 179, 0, 0.1);
 }
 
-.badge {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: bold;
-}
-
-.badge-warning {
-  background-color: rgba(245, 158, 11, 0.1);
-  color: #F59E0B;
-}
-
-.btn-small {
-  padding: 6px 12px;
-  font-size: 12px;
-}
-
-/* Mobile Scan Radar Animation */
-.scan-container {
+/* SCANNER STYLES (Existing but refined) */
+.scan-card {
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  padding: 48px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
   text-align: center;
-  background-color: #F8FAFC;
-  border: 2px dashed #CBD5E1;
+  max-width: 500px;
+  margin: 0 auto;
 }
 
-.scan-container h2 {
-  margin-top: 24px;
-  color: var(--secondary-color);
-}
-
-.scan-container p {
-  color: var(--text-secondary);
-  margin-bottom: 24px;
-}
-
-.radar-animation {
+.radar-container {
   position: relative;
-  width: 120px;
-  height: 120px;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background-color: rgba(255, 179, 0, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 32px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 179, 0, 0.3);
+  transition: all 0.3s ease;
 }
 
-.device-icon {
-  font-size: 40px;
-  z-index: 10;
+.radar-container.scanning {
+  box-shadow: 0 0 0 8px rgba(255, 179, 0, 0.1), 0 0 0 16px rgba(255, 179, 0, 0.05);
 }
 
-.radar-circle {
+.radar-beam {
   position: absolute;
-  width: 100%;
-  height: 100%;
+  width: 50%;
+  height: 50%;
+  top: 0;
+  right: 0;
+  background: linear-gradient(45deg, rgba(255, 179, 0, 0) 0%, rgba(255, 179, 0, 0.4) 100%);
+  transform-origin: bottom left;
+  animation: radar-spin 2s linear infinite;
+}
+
+.phone-icon {
+  font-size: 48px;
+  color: var(--primary-color);
+  z-index: 2;
+}
+
+.scan-content h2 {
+  font-size: 24px;
+  color: var(--secondary-color);
+  margin-bottom: 12px;
+}
+
+.scan-description {
+  color: var(--text-secondary);
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 32px;
+}
+
+.scan-btn {
+  padding: 14px 32px;
+  font-size: 16px;
+  border-radius: 30px;
+  min-width: 200px;
+}
+
+.stop-btn {
+  background-color: transparent;
+  color: var(--danger-color);
+  border: 1px solid var(--danger-color);
+}
+
+.stop-btn:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+@keyframes radar-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* LIST STYLES */
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar-small {
+  width: 32px;
+  height: 32px;
+  background-color: var(--secondary-color);
+  color: white;
   border-radius: 50%;
-  background-color: rgba(255, 179, 0, 0.2);
-  animation: pulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
-  opacity: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
 }
 
-.delay-1 {
-  animation-delay: 0.6s;
-}
-
-.delay-2 {
-  animation-delay: 1.2s;
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(0.5);
-    opacity: 0.8;
-  }
-  100% {
-    transform: scale(2);
-    opacity: 0;
-  }
+.text-danger {
+  color: var(--danger-color);
+  font-weight: 600;
 }

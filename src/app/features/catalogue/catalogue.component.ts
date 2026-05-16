@@ -1,45 +1,91 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { ApiService } from '../../core/services/api.service';
 
 @Component({
   selector: 'app-catalogue',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './catalogue.component.html',
   styleUrl: './catalogue.component.css'
 })
 export class CatalogueComponent implements OnInit {
   public books: any[] = [];
-  public showAddForm: boolean = false;
-  public bookForm: FormGroup;
+  public isLoading = true;
+  
+  // Modal state
+  public isModalOpen = false;
+  
+  // Form state
+  public newBook = {
+    title: '',
+    author: '',
+    isbn: '',
+    availableCopies: 1,
+    category: '',
+    location: ''
+  };
 
-  constructor(private fb: FormBuilder) {
-    this.bookForm = this.fb.group({
-      title: ['', Validators.required],
-      author: ['', Validators.required],
-      isbn: ['', Validators.required],
-      stock: [1, [Validators.required, Validators.min(1)]],
-      category: ['Fiction', Validators.required]
+  constructor(private apiService: ApiService) {}
+
+  ngOnInit(): void {
+    this.fetchBooks();
+  }
+
+  fetchBooks(): void {
+    this.isLoading = true;
+    this.apiService.get<any[]>('/books').subscribe({
+      next: (data) => {
+        this.books = data;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error fetching books:', err);
+        this.isLoading = false;
+      }
     });
   }
 
-  ngOnInit(): void {
-    // Placeholder logic for fetching books from API
+  openAddModal(): void {
+    this.isModalOpen = true;
   }
 
-  public toggleAddForm(): void {
-    this.showAddForm = !this.showAddForm;
-    if (!this.showAddForm) {
-      this.bookForm.reset({ category: 'Fiction', stock: 1 });
+  closeModal(): void {
+    this.isModalOpen = false;
+    // Reset form
+    this.newBook = { title: '', author: '', isbn: '', availableCopies: 1, category: '', location: '' };
+  }
+
+  saveBook(): void {
+    if (!this.newBook.title || !this.newBook.author) {
+      alert("Title and Author are required.");
+      return;
     }
+
+    this.apiService.post('/books', this.newBook).subscribe({
+      next: () => {
+        this.closeModal();
+        this.fetchBooks(); // Refresh list
+      },
+      error: (err) => {
+        alert("Failed to add book. Make sure ISBN is unique.");
+        console.error(err);
+      }
+    });
   }
 
-  public onSubmit(): void {
-    if (this.bookForm.invalid) return;
-
-    console.log('Adding book:', this.bookForm.value);
-    this.toggleAddForm();
-    alert('Book added to catalogue! (UI Simulation)');
+  deleteBook(id: number): void {
+    if (confirm("Are you sure you want to delete this book?")) {
+      this.apiService.delete(`/books/${id}`).subscribe({
+        next: () => {
+          this.fetchBooks(); // Refresh list
+        },
+        error: (err) => {
+          alert("Cannot delete book. It might have active loans.");
+          console.error(err);
+        }
+      });
+    }
   }
 }

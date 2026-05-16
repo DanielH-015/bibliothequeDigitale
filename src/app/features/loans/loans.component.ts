@@ -1,7 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SocketService } from '../../core/services/socket.service';
+import { ApiService } from '../../core/services/api.service';
 import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-loans',
@@ -11,46 +13,102 @@ import { Subscription } from 'rxjs';
   styleUrl: './loans.component.css'
 })
 export class LoansComponent implements OnInit, OnDestroy {
-  public loans: any[] = [];
   public isScanActive: boolean = false;
   private scanSubscription?: Subscription;
 
-  constructor(private socketService: SocketService) {}
+  // Tabs management
+  public activeTab: 'scanner' | 'list' = 'scanner';
+  
+  // Loans data
+  public activeLoans: any[] = [];
+  public isLoadingLoans = false;
+  
+  public today = new Date();
 
-  ngOnInit(): void {}
+  constructor(
+    private socketService: SocketService,
+    private apiService: ApiService,
+    private router: Router
+  ) {}
 
-  // Automatically disconnect if the user navigates to another page
+  ngOnInit(): void {
+    this.fetchActiveLoans();
+  }
+
   ngOnDestroy(): void {
     this.cancelScan();
   }
 
+  // --- TAB MANAGEMENT ---
+  switchTab(tab: 'scanner' | 'list'): void {
+    this.activeTab = tab;
+    if (tab === 'scanner') {
+      this.fetchActiveLoans(); // Refresh in background
+    } else {
+      this.cancelScan(); // Stop radar if navigating to list
+      this.fetchActiveLoans();
+    }
+  }
+
+  // --- SCANNER LOGIC ---
   public activateScan(): void {
     this.isScanActive = true;
-    
-    // Connect to the Socket server
     this.socketService.connect();
     
-    // Start listening for the 'scan-received' event coming from the server
     this.scanSubscription = this.socketService.listen<any>('scan-received').subscribe(
       (studentData) => {
-        console.log('Data received from mobile scanner:', studentData);
-        alert(`Mobile Scan Successful! Student ID: ${studentData.studentId}`);
-        
-        // Stop the radar animation and disconnect
         this.cancelScan();
+        this.router.navigate(['/loans/student', studentData.studentId]);
       }
     );
   }
   
   public cancelScan(): void {
     this.isScanActive = false;
-    
-    // Unsubscribe from the event to prevent memory leaks
     if (this.scanSubscription) {
       this.scanSubscription.unsubscribe();
     }
-    
-    // Disconnect the socket safely
     this.socketService.disconnect();
+  }
+
+  // --- LOANS LIST LOGIC ---
+  fetchActiveLoans(): void {
+    this.isLoadingLoans = true;
+    this.apiService.get<any[]>('/loans').subscribe({
+      next: (data) => {
+        // Filter to only show active loans
+        this.activeLoans = data.filter(loan => loan.status === 'ACTIVE');
+        this.isLoadingLoans = false;
+      },
+      error: (err) => {
+        console.error("Error fetching loans", err);
+        this.isLoadingLoans = false;
+      }
+    });
+  }
+
+  markAsReturned(loanId: number): void {
+    if (confirm("Confirm that the student has returned this book?")) {
+      this.apiService.put(`/loans/${loanId}/return`, {}).subscribe({
+        next: () => {
+          this.fetchActiveLoans(); // Refresh list
+        },
+        error: (err) => {
+          alert("Failed to return book.");
+          console.error(err);
+        }
+      });
+    }
+  }
+
+  isOverdue(dueDateString: string | null): boolean {
+    if (!dueDateString) return false;
+    
+    const dueDate = new Date(dueDateString);
+    // Remove time component from today for fair comparison
+    const todayStr = this.today.toISOString().split('T')[0];
+    const dueStr = dueDate.toISOString().split('T')[0];
+    
+    return dueStr < todayStr;
   }
 }

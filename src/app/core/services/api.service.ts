@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class ApiService {
   // Base URL pointing to our Express Backend API
-  private readonly baseUrl: string = 'http://172.20.10.2:5000/api';
+  private readonly baseUrl: string = 'http://localhost:5000/api';
 
   constructor(private http: HttpClient) {}
 

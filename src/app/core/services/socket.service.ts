@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 export class SocketService {
   private socket: Socket;
 
-  private readonly serverUrl = 'http://172.20.10.2:5000';
+  private readonly serverUrl = 'http://localhost:5000';
 
   constructor() {
     // Initialize the connection configuration, but don't connect automatically

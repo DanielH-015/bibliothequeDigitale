@@ -1,61 +1,49 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ApiService } from '../../core/services/api.service';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css'
 })
 export class UsersComponent implements OnInit {
-  public staffList: any[] = [];
-  public studentList: any[] = [];
-  public showAddForm: boolean = false;
-  public userForm: FormGroup;
-  public activeTab: 'staff' | 'students' = 'staff';
+  public students: any[] = [];
+  public isLoading = true;
 
-  constructor(
-    private apiService: ApiService,
-    private fb: FormBuilder
-  ) {
-    // Initialize form for adding a new admin/librarian
-    this.userForm = this.fb.group({
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      role: ['LIBRARIAN', Validators.required]
+  constructor(private apiService: ApiService) {}
+
+  ngOnInit(): void {
+    this.fetchStudents();
+  }
+
+  fetchStudents(): void {
+    this.isLoading = true;
+    this.apiService.get<any[]>('/students').subscribe({
+      next: (data) => {
+        this.students = data;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error fetching students:', err);
+        this.isLoading = false;
+      }
     });
   }
 
-  ngOnInit(): void {
-    // Placeholder: we will fetch real data from the API later
-  }
-
-  // Toggle the form visibility
-  public toggleAddForm(): void {
-    this.showAddForm = !this.showAddForm;
-    if (!this.showAddForm) {
-      this.userForm.reset({ role: 'LIBRARIAN' });
+  deleteStudent(id: number): void {
+    if (confirm("Are you sure you want to delete this student profile?")) {
+      this.apiService.delete(`/students/${id}`).subscribe({
+        next: () => {
+          this.fetchStudents(); // Refresh list
+        },
+        error: (err) => {
+          alert("Cannot delete student. They might have active loans.");
+          console.error(err);
+        }
+      });
     }
-  }
-
-  // Switch between Staff and Students tabs
-  public setTab(tab: 'staff' | 'students'): void {
-    this.activeTab = tab;
-  }
-
-  // Handle form submission
-  public onSubmit(): void {
-    if (this.userForm.invalid) return;
-
-    // Placeholder: send data to backend later
-    console.log('Adding new user:', this.userForm.value);
-    
-    this.toggleAddForm();
-    alert('User added successfully (UI Simulation)');
   }
 }

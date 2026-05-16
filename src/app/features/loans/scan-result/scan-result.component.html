@@ -1,0 +1,80 @@
+<div class="scan-result-container">
+  <!-- LOADING -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Retrieving student profile...</p>
+  </div>
+
+  <!-- ERROR -->
+  <div class="error-state" *ngIf="errorMessage && !isLoading">
+    <i class="fas fa-exclamation-triangle error-icon"></i>
+    <h2>Error</h2>
+    <p>{{ errorMessage }}</p>
+    <button class="btn-secondary" (click)="goBack()">Go Back to Scanner</button>
+  </div>
+
+  <!-- SUCCESS PROFILE -->
+  <div class="profile-card" *ngIf="studentData && !isLoading">
+    <div class="card-header">
+      <div class="user-info">
+        <!-- profile picture if available -->
+        <div class="avatar">
+          <img *ngIf="studentData.user?.profileImage; else initials" 
+               [src]="'http://localhost:5000' + studentData.user.profileImage" 
+               alt="Student Photo">
+          <ng-template #initials>
+            {{ studentData.user?.firstName?.charAt(0) }}{{ studentData.user?.lastName?.charAt(0) }}
+          </ng-template>
+        </div>
+        <div class="details">
+          <h2>{{ studentData.user?.firstName }} {{ studentData.user?.lastName }}</h2>
+          <span class="badge status-active">Valid Card</span>
+        </div>
+      </div>
+      <button class="btn-close" (click)="goBack()"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="card-body">
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="label">Registration No</span>
+          <span class="value">{{ studentData.registrationNumber }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Classroom</span>
+          <span class="value">{{ studentData.classroom }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Email</span>
+          <span class="value">{{ studentData.user?.email }}</span>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- SECTION: ASSIGN A LOAN -->
+      <div class="loan-section">
+        <h3>Assign a New Book</h3>
+        <p>Select an available book from the catalogue for this student.</p>
+
+        <div class="form-group">
+          <label>Select Book</label>
+          <select [(ngModel)]="selectedBookId" class="modern-select">
+            <option [ngValue]="null" disabled selected>-- Choose a book --</option>
+            <option *ngFor="let book of books" [ngValue]="book.id">
+              {{ book.title }} ({{ book.author }})
+            </option>
+          </select>
+        </div>
+
+        <button 
+          class="btn-primary loan-btn" 
+          [disabled]="!selectedBookId"
+          (click)="confirmLoan()">
+          Confirm Loan (7 Days)
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

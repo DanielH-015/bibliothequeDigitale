@@ -6,6 +6,7 @@ import { authGuard } from './core/guards/auth.guard';
 import { UsersComponent } from './features/users/users.component';
 import { CatalogueComponent } from './features/catalogue/catalogue.component';
 import { LoansComponent } from './features/loans/loans.component';
+import { ScanResultComponent } from './features/loans/scan-result/scan-result.component';
 
 export const routes: Routes = [
   // Public login route
@@ -21,8 +22,8 @@ export const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'users', component: UsersComponent },
       { path: 'catalogue', component: CatalogueComponent },
-      { path: 'loans', component: LoansComponent }
-      
+      { path: 'loans', component: LoansComponent },
+      { path: 'loans/student/:qrCode', component: ScanResultComponent }
     ]
   },
   

@@ -1,55 +1,99 @@
- <div class="header-action">
-  <div>
-    <h1>Loans & Mobile Scan</h1>
-    <p>Manage book loans and use your mobile app to scan student cards.</p>
+<div class="page-header">
+  <div class="header-title">
+    <h1>Loans & Scans</h1>
+    <p>Manage library operations, scan QR codes and track active loans</p>
   </div>
-  <button class="btn btn-primary" (click)="activateScan()" *ngIf="!isScanActive">
-    <span class="icon">📱</span> Start Scan
+</div>
+
+<!-- Tabs Navigation -->
+<div class="tabs-nav">
+  <button 
+    class="tab-btn" 
+    [class.active]="activeTab === 'scanner'" 
+    (click)="switchTab('scanner')">
+    <i class="fas fa-qrcode"></i> QR Scanner
+  </button>
+  <button 
+    class="tab-btn" 
+    [class.active]="activeTab === 'list'" 
+    (click)="switchTab('list')">
+    <i class="fas fa-list"></i> Active Loans
   </button>
 </div>
 
-<!-- Scan Waiting Area -->
-<div class="scan-container card" *ngIf="isScanActive">
-  <div class="radar-animation">
-    <div class="radar-circle"></div>
-    <div class="radar-circle delay-1"></div>
-    <div class="radar-circle delay-2"></div>
-    <div class="device-icon">📱</div>
+<!-- TAB 1: SCANNER -->
+<div class="tab-content" *ngIf="activeTab === 'scanner'">
+  <div class="scan-card">
+    <div class="scan-content">
+      <div class="radar-container" [class.scanning]="isScanActive">
+        <div class="radar"></div>
+        <div class="radar-beam" *ngIf="isScanActive"></div>
+        <i class="fas fa-mobile-alt phone-icon"></i>
+      </div>
+      
+      <h2>Mobile QR Scanner</h2>
+      <p class="scan-description">
+        {{ isScanActive ? 'Waiting for the mobile app to scan a student QR Code...' : 'Click "Start Scanner" and use the mobile app to scan a student card.' }}
+      </p>
+      
+      <button class="btn-primary scan-btn" *ngIf="!isScanActive" (click)="activateScan()">
+        Start Scanner
+      </button>
+      
+      <button class="btn-secondary scan-btn stop-btn" *ngIf="isScanActive" (click)="cancelScan()">
+        Cancel
+      </button>
+    </div>
   </div>
-  
-  <h2>Waiting for Mobile Scan...</h2>
-  <p>Open the Library App on your phone and scan a student's QR code.</p>
-  
-  <button class="btn btn-outline" (click)="cancelScan()">Cancel</button>
 </div>
 
-<!-- Active Loans Table -->
-<div class="table-container" *ngIf="!isScanActive">
-  <table>
-    <thead>
-      <tr>
-        <th>Student</th>
-        <th>Book Title</th>
-        <th>Date Borrowed</th>
-        <th>Due Date</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>
-          <strong>Student Test</strong><br>
-          <span class="sub-text">student@test.com</span>
-        </td>
-        <td>Clean Code</td>
-        <td>May 10, 2026</td>
-        <td>May 24, 2026</td>
-        <td><span class="badge badge-warning">Pending</span></td>
-        <td>
-          <button class="btn btn-primary btn-small">Return Book</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+<!-- TAB 2: ACTIVE LOANS LIST -->
+<div class="tab-content" *ngIf="activeTab === 'list'">
+  <div class="table-card">
+    <div class="loading-state" *ngIf="isLoadingLoans">
+      <div class="spinner"></div>
+      <p>Loading active loans...</p>
+    </div>
+
+    <table class="modern-table" *ngIf="!isLoadingLoans">
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th>Book Title</th>
+          <th>Loan Date</th>
+          <th>Due Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let loan of activeLoans">
+          <td class="primary-cell">
+            <div class="user-cell">
+              <div class="avatar-small">
+                {{ loan.student?.user?.firstName?.charAt(0) }}{{ loan.student?.user?.lastName?.charAt(0) }}
+              </div>
+              {{ loan.student?.user?.firstName }} {{ loan.student?.user?.lastName }}
+            </div>
+          </td>
+          <td>{{ loan.book?.title }}</td>
+          <td>{{ loan.loanDate | date:'mediumDate' }}</td>
+          <td>
+            <span [class.text-danger]="isOverdue(loan.dueDate)">
+              {{ loan.dueDate | date:'mediumDate' }}
+            </span>
+          </td>
+          <td><span class="badge status-active">Active</span></td>
+          <td class="actions-cell">
+            <button class="btn-primary btn-sm" (click)="markAsReturned(loan.id)">
+              Mark Returned
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="activeLoans.length === 0">
+          <td colspan="6" class="empty-state">No active loans found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
