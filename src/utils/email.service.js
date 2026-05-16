@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { GLOBAL_CONFIG } from '../config/env.js';
 
 class EmailService {
   constructor() {
@@ -14,7 +15,7 @@ class EmailService {
   // Sends an account verification email containing the deep link
   sendVerificationEmail = async (toEmail, token, firstName) => {
     // The link points to our new GET route to bypass Gmail security
-    const deepLinkUrl = `http://172.20.10.2:5000/api/auth/verify-email-link?token=${token}`;
+    const deepLinkUrl = `http://${GLOBAL_CONFIG.SERVER_IP}:${GLOBAL_CONFIG.PORT}/api/auth/verify-email-link?token=${token}`;
 
     const mailOptions = {
       from: `"Digital Library" <${process.env.EMAIL_USER}>`,
@@ -41,7 +42,7 @@ class EmailService {
   // Sends a password reset email containing the deep link
   sendPasswordResetEmail = async (toEmail, token, firstName) => {
     // The link points to our GET route to bypass Gmail security, then redirects to the App
-    const deepLinkUrl = `http://172.20.10.2:5000/api/auth/reset-password-link?token=${token}`;
+    const deepLinkUrl = `http://${GLOBAL_CONFIG.SERVER_IP}:${GLOBAL_CONFIG.PORT}/api/auth/reset-password-link?token=${token}`;
 
     const mailOptions = {
       from: `"Digital Library" <${process.env.EMAIL_USER}>`,

@@ -13,6 +13,19 @@ class ReservationService {
       throw new Error("Only registered students can reserve books.");
     }
 
+    // Check if user already has 3 pending reservations
+    const pendingCount = await this.prisma.reservation.count({
+      where: {
+        studentId: student.id,
+        status: 'PENDING'
+      }
+    });
+
+    if (pendingCount >= 3) {
+      throw new Error("You have reached the limit of 3 active reservations.");
+    }
+
+
     const book = await this.prisma.book.findUnique({ where: { id: bookId } });
     if (!book || book.availableCopies <= 0) {
       throw new Error("Book is out of stock.");
