@@ -16,7 +16,7 @@
     <div class="stat-icon loans-icon">L</div>
     <div class="stat-info">
       <h3>Active Loans</h3>
-      <p class="stat-value">{{ activeLoans }}</p>
+      <p class="stat-value">{{ activeLoansCount }}</p>
     </div>
   </div>
 
@@ -27,4 +27,62 @@
       <p class="stat-value">{{ totalStudents }}</p>
     </div>
   </div>
+</div>
+
+<div class="stats-tables-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 32px;">
+  
+  <!-- Most Borrowed Books Table -->
+  <div class="card">
+    <h3 style="margin-bottom: 16px; font-size: 18px;">Top 5 Most Borrowed Books</h3>
+    <table class="modern-table" style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr style="background-color: #F1F5F9; text-align: left;">
+          <th style="padding: 12px; font-size: 12px; color: #64748B;">BOOK TITLE</th>
+          <th style="padding: 12px; font-size: 12px; color: #64748B;">CATEGORY</th>
+          <th style="padding: 12px; font-size: 12px; color: #64748B;">BORROWS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of topBooks" style="border-bottom: 1px solid #E2E8F0;">
+          <td style="padding: 12px; font-weight: 500; color: #0F172A;">{{ item.book.title }}</td>
+          <td style="padding: 12px;">
+            <span style="background-color: #F1F5F9; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+              {{ item.book.category || 'General' }}
+            </span>
+          </td>
+          <td style="padding: 12px; font-weight: bold; color: var(--primary-color);">{{ item.count }} times</td>
+        </tr>
+        <tr *ngIf="topBooks.length === 0">
+          <td colspan="3" style="padding: 24px; text-align: center; color: #64748B;">No borrow data available.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Recent Active Loans Table -->
+  <div class="card">
+    <h3 style="margin-bottom: 16px; font-size: 18px;">Recent Active Loans</h3>
+    <table class="modern-table" style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr style="background-color: #F1F5F9; text-align: left;">
+          <th style="padding: 12px; font-size: 12px; color: #64748B;">STUDENT</th>
+          <th style="padding: 12px; font-size: 12px; color: #64748B;">BOOK</th>
+          <th style="padding: 12px; font-size: 12px; color: #64748B;">DATE</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let loan of recentLoans" style="border-bottom: 1px solid #E2E8F0;">
+          <td style="padding: 12px; font-weight: 500; color: #0F172A;">
+            {{ loan.student?.user?.firstName }} {{ loan.student?.user?.lastName }}
+          </td>
+          <td style="padding: 12px;">{{ loan.book?.title }}</td>
+          <td style="padding: 12px; font-size: 13px; color: #64748B;">{{ loan.loanDate | date:'shortDate' }}</td>
+        </tr>
+        <tr *ngIf="recentLoans.length === 0">
+          <td colspan="3" style="padding: 24px; text-align: center; color: #64748B;">No recent active loans.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
 </div>

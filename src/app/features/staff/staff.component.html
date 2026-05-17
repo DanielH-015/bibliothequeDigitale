@@ -1,0 +1,114 @@
+<div class="page-header">
+  <div class="header-title">
+    <h1>Staff Members</h1>
+    <p>Manage library administrators and librarians.</p>
+  </div>
+</div>
+
+<!-- Tabs Navigation -->
+<div class="tabs-nav">
+  <button 
+    class="tab-btn" 
+    [class.active]="activeTab === 'list'" 
+    (click)="setActiveTab('list')">
+    <i class="fas fa-users"></i> Staff List
+  </button>
+  <button 
+    class="tab-btn" 
+    [class.active]="activeTab === 'add'" 
+    (click)="setActiveTab('add')">
+    <i class="fas fa-user-plus"></i> Add Staff
+  </button>
+</div>
+
+<!-- TAB 1: STAFF LIST -->
+<div class="tab-content" *ngIf="activeTab === 'list'">
+  <div class="table-card">
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Loading staff...</p>
+    </div>
+
+    <table class="modern-table" *ngIf="!isLoading">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email Address</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let staff of staffMembers">
+          <td class="primary-cell">
+            <div class="user-cell">
+              <div class="avatar-small">
+                {{ staff.firstName?.charAt(0) }}{{ staff.lastName?.charAt(0) }}
+              </div>
+              {{ staff.firstName }} {{ staff.lastName }}
+            </div>
+          </td>
+          <td>{{ staff.email }}</td>
+          <td><span class="badge badge-light">{{ staff.role }}</span></td>
+          <td>
+            <span class="badge" [class.status-active]="staff.isValid" [class.status-inactive]="!staff.isValid">
+              {{ staff.isValid ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+          <td class="actions-cell">
+            <button class="btn-sm" [ngClass]="staff.isValid ? 'btn-danger-outline' : 'btn-success-outline'" (click)="toggleStaffStatus(staff)">
+              {{ staff.isValid ? 'Block' : 'Unblock' }}
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="staffMembers.length === 0">
+          <td colspan="5" class="empty-state">No staff members found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 2: ADD STAFF -->
+<div class="tab-content" *ngIf="activeTab === 'add'">
+  <div class="card add-staff-card" style="max-width: 600px; margin: 0 auto;">
+    <h2>Add New Staff Member</h2>
+    <p class="subtitle" style="margin-bottom: 20px;">Enter the details to create a new librarian or administrator.</p>
+    
+    <div class="form-row" style="display: flex; gap: 16px; margin-bottom: 12px;">
+      <div class="form-group" style="flex: 1;">
+        <label style="font-size: 13px; margin-bottom: 4px; display: block;">First Name *</label>
+        <input type="text" class="modern-input" [(ngModel)]="newStaffData.firstName" placeholder="First Name" style="padding: 8px 12px;">
+      </div>
+      <div class="form-group" style="flex: 1;">
+        <label style="font-size: 13px; margin-bottom: 4px; display: block;">Last Name *</label>
+        <input type="text" class="modern-input" [(ngModel)]="newStaffData.lastName" placeholder="Last Name" style="padding: 8px 12px;">
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-bottom: 12px;">
+      <label style="font-size: 13px; margin-bottom: 4px; display: block;">Email Address *</label>
+      <input type="email" class="modern-input" [(ngModel)]="newStaffData.email" placeholder="email@example.com" style="padding: 8px 12px;">
+    </div>
+
+    <div class="form-row" style="display: flex; gap: 16px; margin-bottom: 24px;">
+      <div class="form-group" style="flex: 1;">
+        <label style="font-size: 13px; margin-bottom: 4px; display: block;">Password *</label>
+        <input type="password" class="modern-input" [(ngModel)]="newStaffData.password" placeholder="Min. 6 characters" style="padding: 8px 12px;">
+      </div>
+      <div class="form-group" style="flex: 1;">
+        <label style="font-size: 13px; margin-bottom: 4px; display: block;">Role *</label>
+        <select class="modern-input" [(ngModel)]="newStaffData.role" style="padding: 8px 12px;">
+          <option value="LIBRARIAN">Librarian</option>
+          <option value="ADMIN">Administrator</option>
+        </select>
+      </div>
+    </div>
+    
+    <div style="display: flex; justify-content: flex-end; gap: 12px;">
+      <button class="btn btn-secondary" (click)="setActiveTab('list')" style="padding: 8px 16px; font-size: 14px;">Cancel</button>
+      <button class="btn btn-primary" (click)="submitStaff()" style="padding: 8px 16px; font-size: 14px;">Create Staff</button>
+    </div>
+  </div>
+</div>

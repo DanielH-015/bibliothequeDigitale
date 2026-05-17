@@ -1,13 +1,14 @@
-import { ApplicationConfig } from '@angular/core';
+import { ApplicationConfig, provideExperimentalZonelessChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
 
 import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideExperimentalZonelessChangeDetection(),
     provideRouter(routes),
-    // Enable HTTP client to make API requests, using the native Fetch API for better performance
-    provideHttpClient(withFetch())
+    // Enable HTTP client to make API requests
+    provideHttpClient()
   ]
 };

@@ -21,6 +21,11 @@ export class AuthService {
     return !!localStorage.getItem('jwt_token');
   }
 
+  // Get current user role
+  public getUserRole(): string | null {
+    return localStorage.getItem('user_role');
+  }
+
   // Handle user login and store the token
   public login(credentials: any): Observable<any> {
     return this.apiService.post<any>('/auth/login', credentials).pipe(
@@ -28,9 +33,10 @@ export class AuthService {
         if (response && response.token) {
           localStorage.setItem('jwt_token', response.token);
           
-          // Store the user ID if the backend sends it
-          if (response.user && response.user.id) {
-            localStorage.setItem('user_id', response.user.id.toString());
+          // Store the user ID and Role if the backend sends it
+          if (response.user) {
+            if (response.user.id) localStorage.setItem('user_id', response.user.id.toString());
+            if (response.user.role) localStorage.setItem('user_role', response.user.role);
           }
           
           // Notify the application that the user is now authenticated
@@ -44,6 +50,7 @@ export class AuthService {
   public logout(): void {
     localStorage.removeItem('jwt_token');
     localStorage.removeItem('user_id');
+    localStorage.removeItem('user_role');
     
     // Notify the application that the user is disconnected
     this.isAuthenticatedSubject.next(false);

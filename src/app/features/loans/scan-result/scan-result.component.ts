@@ -75,7 +75,7 @@ export class ScanResultComponent implements OnInit {
     dueDate.setDate(dueDate.getDate() + 7);
 
     const payload = {
-      studentId: this.studentData.id, // ID local (table Student)
+      studentId: this.studentData.id, // Local ID (Student table)
       bookId: this.selectedBookId,
       dueDate: dueDate.toISOString()
     };

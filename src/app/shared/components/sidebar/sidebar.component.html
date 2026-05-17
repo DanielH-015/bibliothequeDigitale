@@ -1,21 +1,32 @@
 <aside class="sidebar">
   <div class="sidebar-logo">
-    <div class="logo-circle"></div>
-    <h2>Admin</h2>
+    <div class="logo-circle" *ngIf="!currentUser?.profileImage">
+      {{ currentUser ? currentUser.firstName.charAt(0) : 'A' }}
+    </div>
+    <img *ngIf="currentUser?.profileImage" [src]="'http://localhost:5000/' + currentUser.profileImage" class="logo-circle" style="object-fit: cover; padding: 0; border: none;">
+    <h2>{{ currentUser ? currentUser.firstName : 'Admin' }}</h2>
   </div>
   
   <nav class="sidebar-nav">
     <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+      <i class="fas fa-home"></i>
       <span>Dashboard</span>
     </a>
     <a routerLink="/catalogue" routerLinkActive="active" class="nav-item">
+      <i class="fas fa-book"></i>
       <span>Catalogue</span>
     </a>
     <a routerLink="/loans" routerLinkActive="active" class="nav-item">
+      <i class="fas fa-barcode"></i>
       <span>Loans & Scans</span>
     </a>
-    <a routerLink="/users" routerLinkActive="active" class="nav-item">
-      <span>Users Management</span>
+    <a routerLink="/students" routerLinkActive="active" class="nav-item">
+      <i class="fas fa-user-graduate"></i>
+      <span>Students</span>
+    </a>
+    <a *ngIf="isAdmin" routerLink="/staff" routerLinkActive="active" class="nav-item">
+      <i class="fas fa-user-tie"></i>
+      <span>Staff Management</span>
     </a>
   </nav>
 </aside>

@@ -1,0 +1,123 @@
+<div class="page-header">
+  <div class="header-title">
+    <h1>Students Directory</h1>
+    <p>Manage all registered students in the library system.</p>
+  </div>
+</div>
+
+<!-- Tabs Navigation -->
+<div class="tabs-nav">
+  <button 
+    class="tab-btn" 
+    [class.active]="activeTab === 'list'" 
+    (click)="setActiveTab('list')">
+    <i class="fas fa-users"></i> Students List
+  </button>
+  <button 
+    class="tab-btn" 
+    [class.active]="activeTab === 'add'" 
+    (click)="setActiveTab('add')">
+    <i class="fas fa-user-plus"></i> Add Student
+  </button>
+</div>
+
+<!-- TAB 1: LIST -->
+<div class="tab-content" *ngIf="activeTab === 'list'">
+  <div class="table-card">
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Loading students...</p>
+    </div>
+
+    <table class="modern-table" *ngIf="!isLoading">
+      <thead>
+        <tr>
+          <th>Student Details</th>
+          <th>Matricule</th>
+          <th>Grade/Class</th>
+          <th>Contact</th>
+          <th>QR Code</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let student of students">
+          <td class="primary-cell">
+            <div class="user-cell">
+              <div class="avatar-small">
+                {{ student.firstName?.charAt(0) }}{{ student.lastName?.charAt(0) }}
+              </div>
+              <div>
+                <div class="user-name">{{ student.firstName }} {{ student.lastName }}</div>
+                <div class="user-email" style="font-size: 12px; color: #64748B;">{{ student.email }}</div>
+              </div>
+            </div>
+          </td>
+          <td style="font-weight: 500;">{{ student.studentProfile?.registrationNumber || 'N/A' }}</td>
+          <td><span class="badge badge-light">{{ student.studentProfile?.classroom || 'N/A' }}</span></td>
+          <td>{{ student.studentProfile?.parentEmail || 'N/A' }}</td>
+          <td>
+            <div class="qr-code-mini" *ngIf="student.studentProfile?.qrCodeId">
+              <span style="color: #10B981; font-size: 12px; font-weight: 600;">Generated</span>
+            </div>
+            <span *ngIf="!student.studentProfile?.qrCodeId" style="color: #94A3B8; font-size: 12px;">Not Generated</span>
+          </td>
+          <td class="actions-cell">
+            <button class="btn-icon btn-danger" (click)="deleteStudent(student.id)" title="Delete Student">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="students.length === 0">
+          <td colspan="6" class="empty-state">No students found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 2: ADD STUDENT -->
+<div class="tab-content" *ngIf="activeTab === 'add'">
+  <div class="card add-student-card" style="max-width: 600px; margin: 0 auto;">
+    <h2>Register New Student</h2>
+    <p class="subtitle" style="margin-bottom: 20px;">Enter the student details to register them in the library.</p>
+    
+    <div class="form-row" style="display: flex; gap: 16px; margin-bottom: 12px;">
+      <div class="form-group" style="flex: 1;">
+        <label style="font-size: 13px; margin-bottom: 4px; display: block;">First Name *</label>
+        <input type="text" class="modern-input" [(ngModel)]="newStudentData.firstName" placeholder="First Name" style="padding: 8px 12px;">
+      </div>
+      <div class="form-group" style="flex: 1;">
+        <label style="font-size: 13px; margin-bottom: 4px; display: block;">Last Name *</label>
+        <input type="text" class="modern-input" [(ngModel)]="newStudentData.lastName" placeholder="Last Name" style="padding: 8px 12px;">
+      </div>
+    </div>
+
+    <div class="form-row" style="display: flex; gap: 16px; margin-bottom: 12px;">
+      <div class="form-group" style="flex: 1;">
+        <label style="font-size: 13px; margin-bottom: 4px; display: block;">Matricule *</label>
+        <input type="text" class="modern-input" [(ngModel)]="newStudentData.matricule" placeholder="e.g. STU12345" style="padding: 8px 12px;">
+      </div>
+      <div class="form-group" style="flex: 1;">
+        <label style="font-size: 13px; margin-bottom: 4px; display: block;">Grade/Class</label>
+        <input type="text" class="modern-input" [(ngModel)]="newStudentData.grade" placeholder="e.g. Master 1" style="padding: 8px 12px;">
+      </div>
+    </div>
+
+    <div class="form-row" style="display: flex; gap: 16px; margin-bottom: 24px;">
+      <div class="form-group" style="flex: 1;">
+        <label style="font-size: 13px; margin-bottom: 4px; display: block;">Email Address</label>
+        <input type="email" class="modern-input" [(ngModel)]="newStudentData.email" placeholder="student@example.com" style="padding: 8px 12px;">
+      </div>
+      <div class="form-group" style="flex: 1;">
+        <label style="font-size: 13px; margin-bottom: 4px; display: block;">Phone Number</label>
+        <input type="text" class="modern-input" [(ngModel)]="newStudentData.phoneNumber" placeholder="+123456789" style="padding: 8px 12px;">
+      </div>
+    </div>
+    
+    <div style="display: flex; justify-content: flex-end; gap: 12px;">
+      <button class="btn btn-secondary" (click)="setActiveTab('list')" style="padding: 8px 16px; font-size: 14px;">Cancel</button>
+      <button class="btn btn-primary" (click)="submitStudent()" style="padding: 8px 16px; font-size: 14px;">Register Student</button>
+    </div>
+  </div>
+</div>

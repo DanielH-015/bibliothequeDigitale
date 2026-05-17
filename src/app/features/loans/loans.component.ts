@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SocketService } from '../../core/services/socket.service';
 import { ApiService } from '../../core/services/api.service';
@@ -18,7 +18,7 @@ export class LoansComponent implements OnInit, OnDestroy {
 
   // Tabs management
   public activeTab: 'scanner' | 'list' = 'scanner';
-  
+
   // Loans data
   public activeLoans: any[] = [];
   public isLoadingLoans = false;
@@ -28,7 +28,8 @@ export class LoansComponent implements OnInit, OnDestroy {
   constructor(
     private socketService: SocketService,
     private apiService: ApiService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -79,10 +80,12 @@ export class LoansComponent implements OnInit, OnDestroy {
         // Filter to only show active loans
         this.activeLoans = data.filter(loan => loan.status === 'ACTIVE');
         this.isLoadingLoans = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error("Error fetching loans", err);
         this.isLoadingLoans = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -92,10 +95,12 @@ export class LoansComponent implements OnInit, OnDestroy {
       this.apiService.put(`/loans/${loanId}/return`, {}).subscribe({
         next: () => {
           this.fetchActiveLoans(); // Refresh list
+          this.cdr.detectChanges();
         },
         error: (err) => {
           alert("Failed to return book.");
           console.error(err);
+          this.cdr.detectChanges();
         }
       });
     }

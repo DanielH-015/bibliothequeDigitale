@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/services/api.service';
@@ -14,8 +14,8 @@ export class CatalogueComponent implements OnInit {
   public books: any[] = [];
   public isLoading = true;
   
-  // Modal state
-  public isModalOpen = false;
+  // Active tab state: 'list' or 'add'
+  public activeTab: 'list' | 'add' = 'list';
   
   // Form state
   public newBook = {
@@ -27,7 +27,7 @@ export class CatalogueComponent implements OnInit {
     location: ''
   };
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.fetchBooks();
@@ -39,21 +39,24 @@ export class CatalogueComponent implements OnInit {
       next: (data) => {
         this.books = data;
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error fetching books:', err);
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
 
-  openAddModal(): void {
-    this.isModalOpen = true;
+  setActiveTab(tab: 'list' | 'add'): void {
+    this.activeTab = tab;
+    if (tab === 'add') {
+      this.resetForm();
+    }
   }
 
-  closeModal(): void {
-    this.isModalOpen = false;
-    // Reset form
+  resetForm(): void {
     this.newBook = { title: '', author: '', isbn: '', availableCopies: 1, category: '', location: '' };
   }
 
@@ -65,12 +68,15 @@ export class CatalogueComponent implements OnInit {
 
     this.apiService.post('/books', this.newBook).subscribe({
       next: () => {
-        this.closeModal();
+        this.resetForm();
+        this.setActiveTab('list');
         this.fetchBooks(); // Refresh list
+        this.cdr.detectChanges();
       },
       error: (err) => {
         alert("Failed to add book. Make sure ISBN is unique.");
         console.error(err);
+        this.cdr.detectChanges();
       }
     });
   }
@@ -80,10 +86,12 @@ export class CatalogueComponent implements OnInit {
       this.apiService.delete(`/books/${id}`).subscribe({
         next: () => {
           this.fetchBooks(); // Refresh list
+          this.cdr.detectChanges();
         },
         error: (err) => {
           alert("Cannot delete book. It might have active loans.");
           console.error(err);
+          this.cdr.detectChanges();
         }
       });
     }
