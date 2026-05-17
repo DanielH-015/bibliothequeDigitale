@@ -3,11 +3,12 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http_parser/http_parser.dart';
+import '../config/app_config.dart';
 
 
 class ApiClient {
   // Base URL of our Node.js backend
-  static const String baseUrl = 'http://172.20.10.2:5000/api';
+  static const String baseUrl = AppConfig.baseUrl;
   
   // Local storage keys
   static const String _tokenKey = 'jwt_token';

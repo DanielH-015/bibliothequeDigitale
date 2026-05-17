@@ -1,9 +1,10 @@
 import 'package:socket_io_client/socket_io_client.dart' as io_client;
 import 'package:flutter/foundation.dart';
 import 'dart:async';
+import '../config/app_config.dart';
 
 class SocketClient {
-  static const String serverUrl = 'http://172.20.10.2:5000';
+  static const String serverUrl = AppConfig.socketUrl;
   
   static Future<void> sendMobileScan(String studentId) async {
     io_client.Socket socket = io_client.io(serverUrl, io_client.OptionBuilder()
