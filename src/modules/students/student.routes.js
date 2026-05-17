@@ -1,6 +1,6 @@
 import { Router } from '../../utils/router.js';
 import { studentService } from './student.service.js';
-import { verify, requireAdmin } from '../../middlewares/auth.middleware.js';
+import { verify, requireAdmin, requireLibrarianOrAdmin } from '../../middlewares/auth.middleware.js';
 import { upload } from '../../middlewares/upload.middleware.js';
 import { validateCreate, validateUpdate } from '../../middlewares/student.middleware.js';
 
@@ -8,7 +8,7 @@ const router = Router();
 
 router.use(verify);
 
-router.get('/', requireAdmin, async () => {
+router.get('/', requireLibrarianOrAdmin, async () => {
   return studentService.getAll();
 });
 

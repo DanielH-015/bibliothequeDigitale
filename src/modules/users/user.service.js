@@ -49,7 +49,7 @@ class UserService {
   }
 
   update = async (id, payload) => {
-    const { firstName, lastName, email, role, isValid } = payload;
+    const { firstName, lastName, email, role, isValid, profileImage } = payload;
 
     return await this.prisma.user.update({
       where: { id },
@@ -58,9 +58,10 @@ class UserService {
         lastName: lastName,
         email: email,
         role: role,
-        isValid: isValid
+        isValid: isValid,
+        profileImage: profileImage
       },
-      select: { id: true, firstName: true, email: true, role: true, isValid: true }
+      select: { id: true, firstName: true, lastName: true, email: true, role: true, isValid: true, profileImage: true }
     });
   }
 

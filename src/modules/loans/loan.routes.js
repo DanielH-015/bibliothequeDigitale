@@ -9,11 +9,11 @@ const router = Router();
 router.use(verify);
 
 // Routes for Admin and Librarian to manage loans
-router.get('/', requireAdmin, async () => {
+router.get('/', requireLibrarianOrAdmin, async () => {
   return loanService.getAll();
 });
 
-router.post('/', requireAdmin, validateCreate, async (req) => {
+router.post('/', requireLibrarianOrAdmin, validateCreate, async (req) => {
   const payload = req.body;
   return loanService.create(payload);
 });
