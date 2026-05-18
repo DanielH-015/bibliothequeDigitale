@@ -25,8 +25,11 @@ router.get('/:id', async (req) => {
   return studentService.getById(parseInt(req.params.id));
 });
 
-router.put('/:id', validateUpdate, async (req) => {
+router.put('/:id', upload.single('profileImage'), validateUpdate, async (req) => {
   const payload = req.body;
+  if (req.file) {
+    payload.profileImage = req.file.path.replace(/\\/g, '/');
+  }
   return studentService.update(parseInt(req.params.id), payload);
 });
 

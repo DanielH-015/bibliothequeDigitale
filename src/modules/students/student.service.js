@@ -70,36 +70,39 @@ class StudentService {
   }
 
   update = async (id, payload) => {
-    const { firstName, lastName, email, registrationNumber, classroom, studyStream, parentEmail } = payload;
+    const { firstName, lastName, email, registrationNumber, classroom, studyStream, parentEmail, profileImage } = payload;
+
+    const dataToUpdate = {
+      firstName,
+      lastName,
+      email,
+      studentProfile: {
+        upsert: {
+          create: {
+            registrationNumber: registrationNumber || `TEMP-${Date.now()}`,
+            classroom: classroom || 'N/A',
+            studyStream: studyStream || 'N/A',
+            parentEmail: parentEmail || 'N/A',
+            birthDate: new Date(), // Required by DB but not in the mobile form
+            qrCodeId: uuidv4() 
+          },
+          update: { 
+            registrationNumber, 
+            classroom, 
+            studyStream, 
+            parentEmail 
+          }
+        }
+      }
+    };
+
+    if (profileImage) {
+      dataToUpdate.profileImage = profileImage;
+    }
 
     const updatedStudent = await this.prisma.user.update({
       where: { id },
-      data: {
-        firstName,
-        lastName,
-        email,
-        // Using "upsert" instead of "update"
-        // It updates the profile if it exists, or creates it if it doesn't!
-        studentProfile: {
-          upsert: {
-            create: {
-              registrationNumber: registrationNumber || `TEMP-${Date.now()}`,
-              classroom: classroom || 'N/A',
-              studyStream: studyStream || 'N/A',
-              parentEmail: parentEmail || 'N/A',
-              birthDate: new Date(), // Required by DB but not in the mobile form
-              qrCodeId: uuidv4() 
- // Generate a unique QR Code ID
-            },
-            update: { 
-              registrationNumber, 
-              classroom, 
-              studyStream, 
-              parentEmail 
-            }
-          }
-        }
-      },
+      data: dataToUpdate,
       include: { studentProfile: true }
     });
 
