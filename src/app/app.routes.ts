@@ -9,11 +9,15 @@ import { LoansComponent } from './features/loans/loans.component';
 import { ScanResultComponent } from './features/loans/scan-result/scan-result.component';
 import { StaffComponent } from './features/staff/staff.component';
 import { StudentsComponent } from './features/students/students.component';
+import { PrintCardComponent } from './features/students/print-card/print-card.component';
 import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   // Public login route
   { path: 'login', component: LoginComponent },
+  
+  // Dedicated print layout (no sidebar/header)
+  { path: 'print-card/:id', component: PrintCardComponent, canActivate: [authGuard] },
   
   // Protected Admin Routes wrapped in the AdminLayoutComponent shell
   { 

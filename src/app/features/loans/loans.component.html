@@ -19,6 +19,12 @@
     (click)="switchTab('list')">
     <i class="fas fa-list"></i> Active Loans
   </button>
+  <button 
+    class="tab-btn" 
+    [class.active]="activeTab === 'history'" 
+    (click)="switchTab('history')">
+    <i class="fas fa-history"></i> Loan History
+  </button>
 </div>
 
 <!-- TAB 1: SCANNER -->
@@ -92,6 +98,73 @@
         </tr>
         <tr *ngIf="activeLoans.length === 0">
           <td colspan="6" class="empty-state">No active loans found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 3: LOAN HISTORY -->
+<div class="tab-content" *ngIf="activeTab === 'history'">
+  <div class="table-card">
+    
+    <div class="filters-row" style="display: flex; gap: 16px; margin-bottom: 24px; align-items: flex-end;">
+      <div class="form-group filter-group" style="flex: 1; margin: 0;">
+        <label style="font-size: 13px; color: #64748B; margin-bottom: 6px;">Date</label>
+        <input type="date" class="modern-input" [(ngModel)]="historyFilters.date" (change)="applyHistoryFilters()">
+      </div>
+      <div class="form-group filter-group" style="flex: 1; margin: 0;">
+        <label style="font-size: 13px; color: #64748B; margin-bottom: 6px;">Book Title</label>
+        <input type="text" class="modern-input" placeholder="Filter by book..." [(ngModel)]="historyFilters.bookTitle" (input)="applyHistoryFilters()">
+      </div>
+      <div class="form-group filter-group" style="flex: 1; margin: 0;">
+        <label style="font-size: 13px; color: #64748B; margin-bottom: 6px;">Student Name</label>
+        <input type="text" class="modern-input" placeholder="Filter by student..." [(ngModel)]="historyFilters.studentName" (input)="applyHistoryFilters()">
+      </div>
+      
+      <div class="form-group filter-group" style="margin: 0;" *ngIf="historyFilters.date || historyFilters.bookTitle || historyFilters.studentName">
+        <button class="btn btn-secondary" (click)="historyFilters = {date: '', bookTitle: '', studentName: ''}; applyHistoryFilters()" style="height: 42px; display: flex; align-items: center; gap: 8px; background: #0F172A; color: white;">
+          <i class="fas fa-times"></i> Clear Filters
+        </button>
+      </div>
+    </div>
+
+    <div class="loading-state" *ngIf="isLoadingHistory">
+      <div class="spinner"></div>
+      <p>Loading loan history...</p>
+    </div>
+
+    <table class="modern-table" *ngIf="!isLoadingHistory">
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th>Book Title</th>
+          <th>Loan Date</th>
+          <th>Return Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let loan of filteredHistoryLoans">
+          <td class="primary-cell">
+            <div class="user-cell">
+              <div class="avatar-small">
+                {{ loan.student?.user?.firstName?.charAt(0) }}{{ loan.student?.user?.lastName?.charAt(0) }}
+              </div>
+              {{ loan.student?.user?.firstName }} {{ loan.student?.user?.lastName }}
+            </div>
+          </td>
+          <td>{{ loan.book?.title }}</td>
+          <td>{{ loan.loanDate | date:'mediumDate' }}</td>
+          <td>{{ loan.returnDate ? (loan.returnDate | date:'mediumDate') : 'Not Returned' }}</td>
+          <td>
+            <span class="badge" [ngClass]="loan.status === 'ACTIVE' ? 'status-active' : 'status-returned'">
+              {{ loan.status === 'ACTIVE' ? 'Active' : 'Returned' }}
+            </span>
+          </td>
+        </tr>
+        <tr *ngIf="filteredHistoryLoans.length === 0">
+          <td colspan="5" class="empty-state">No loans found matching the filters.</td>
         </tr>
       </tbody>
     </table>

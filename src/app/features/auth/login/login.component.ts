@@ -16,6 +16,7 @@ export class LoginComponent {
   public loginForm: FormGroup;
   public isLoading: boolean = false;
   public errorMessage: string = '';
+  public showPassword = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -28,6 +29,10 @@ export class LoginComponent {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
+  }
+
+  public togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 
   public onSubmit(): void {

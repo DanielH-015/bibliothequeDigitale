@@ -20,16 +20,17 @@
   border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
-.logo-circle {
-  width: 32px;
-  height: 32px;
-  background-color: var(--primary-color);
-  border-radius: 50%;
+.logo-square {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--primary-color), #fcd34d);
+  border-radius: 8px; /* Slightly rounded square */
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
+  font-size: 18px;
   color: #0F172A;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .sidebar-logo h2 {

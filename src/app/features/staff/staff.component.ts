@@ -2,6 +2,8 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/services/api.service';
+import { ToastService } from '../../core/services/toast.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-staff',
@@ -24,7 +26,11 @@ export class StaffComponent implements OnInit {
     role: 'LIBRARIAN'
   };
 
-  constructor(private apiService: ApiService, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private apiService: ApiService, 
+    private cdr: ChangeDetectorRef,
+    private toastService: ToastService
+  ) {}
 
   ngOnInit(): void {
     this.fetchStaff();
@@ -49,19 +55,31 @@ export class StaffComponent implements OnInit {
 
   toggleStaffStatus(staff: any): void {
     const action = staff.isValid ? 'deactivate' : 'activate';
-    if (confirm(`Are you sure you want to ${action} this staff member?`)) {
-      this.apiService.put(`/users/${staff.id}`, { isValid: !staff.isValid }).subscribe({
-        next: () => {
-          this.fetchStaff();
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          console.error(err);
-          alert('Could not change staff status.');
-          this.cdr.detectChanges();
-        }
-      });
-    }
+    
+    Swal.fire({
+      title: 'Are you sure?',
+      text: `Do you want to ${action} this staff member?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#EF4444',
+      cancelButtonColor: '#64748B',
+      confirmButtonText: `Yes, ${action}!`
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.apiService.put(`/users/${staff.id}`, { isValid: !staff.isValid }).subscribe({
+          next: () => {
+            this.toastService.showSuccess(`Staff member ${action}d successfully!`);
+            this.fetchStaff();
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            console.error(err);
+            this.toastService.showError('Could not change staff status.');
+            this.cdr.detectChanges();
+          }
+        });
+      }
+    });
   }
 
   setActiveTab(tab: 'list' | 'add'): void {
@@ -88,20 +106,20 @@ export class StaffComponent implements OnInit {
 
   submitStaff(): void {
     if (!this.newStaffData.email || !this.newStaffData.password || !this.newStaffData.firstName || !this.newStaffData.lastName) {
-      alert("Please fill in all required fields.");
+      this.toastService.showError("Please fill in all required fields.");
       return;
     }
 
     this.apiService.post('/users', this.newStaffData).subscribe({
       next: () => {
-        alert("Staff member created successfully!");
+        this.toastService.showSuccess("Staff member created successfully!");
         this.setActiveTab('list');
         this.fetchStaff();
         this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error creating staff member:', err);
-        alert("An error occurred while creating the staff member.");
+        this.toastService.showError("An error occurred while creating the staff member.");
         this.cdr.detectChanges();
       }
     });

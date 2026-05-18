@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { ApiService } from '../../../core/services/api.service';
+import { ToastService } from '../../../core/services/toast.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-header',
@@ -30,7 +32,8 @@ export class HeaderComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private apiService: ApiService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -105,7 +108,7 @@ export class HeaderComponent implements OnInit {
 
     this.apiService.put(`/users/${userId}`, formData).subscribe({
       next: (updatedUser: any) => {
-        alert("Profile updated successfully!");
+        this.toastService.showSuccess("Profile updated successfully!");
         this.currentUser = updatedUser;
         this.closeProfileModal();
         this.isUploading = false;
@@ -113,7 +116,7 @@ export class HeaderComponent implements OnInit {
       },
       error: (err) => {
         console.error(err);
-        alert("Failed to update profile.");
+        this.toastService.showError("Failed to update profile.");
         this.isUploading = false;
         this.cdr.detectChanges();
       }
@@ -121,7 +124,19 @@ export class HeaderComponent implements OnInit {
   }
 
   public onLogout(): void {
-    this.authService.logout();
+    Swal.fire({
+      title: 'Ready to leave?',
+      text: "You will be logged out of your session.",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#F59E0B',
+      cancelButtonColor: '#64748B',
+      confirmButtonText: 'Yes, logout'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.authService.logout();
+      }
+    });
   }
 
   public getProfileImageUrl(imagePath: string): string {

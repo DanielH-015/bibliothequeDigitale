@@ -2,6 +2,8 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/services/api.service';
+import { ToastService } from '../../core/services/toast.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-catalogue',
@@ -27,7 +29,11 @@ export class CatalogueComponent implements OnInit {
     location: ''
   };
 
-  constructor(private apiService: ApiService, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private apiService: ApiService, 
+    private cdr: ChangeDetectorRef,
+    private toastService: ToastService
+  ) {}
 
   ngOnInit(): void {
     this.fetchBooks();
@@ -62,19 +68,20 @@ export class CatalogueComponent implements OnInit {
 
   saveBook(): void {
     if (!this.newBook.title || !this.newBook.author) {
-      alert("Title and Author are required.");
+      this.toastService.showError("Title and Author are required.");
       return;
     }
 
     this.apiService.post('/books', this.newBook).subscribe({
       next: () => {
+        this.toastService.showSuccess("Book added successfully!");
         this.resetForm();
         this.setActiveTab('list');
         this.fetchBooks(); // Refresh list
         this.cdr.detectChanges();
       },
       error: (err) => {
-        alert("Failed to add book. Make sure ISBN is unique.");
+        this.toastService.showError("Failed to add book. Make sure ISBN is unique.");
         console.error(err);
         this.cdr.detectChanges();
       }
@@ -82,18 +89,29 @@ export class CatalogueComponent implements OnInit {
   }
 
   deleteBook(id: number): void {
-    if (confirm("Are you sure you want to delete this book?")) {
-      this.apiService.delete(`/books/${id}`).subscribe({
-        next: () => {
-          this.fetchBooks(); // Refresh list
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          alert("Cannot delete book. It might have active loans.");
-          console.error(err);
-          this.cdr.detectChanges();
-        }
-      });
-    }
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "Do you want to delete this book?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#EF4444',
+      cancelButtonColor: '#64748B',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.apiService.delete(`/books/${id}`).subscribe({
+          next: () => {
+            this.toastService.showSuccess('Book deleted successfully!');
+            this.fetchBooks(); // Refresh list
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            this.toastService.showError("Cannot delete book. It might have active loans.");
+            console.error(err);
+            this.cdr.detectChanges();
+          }
+        });
+      }
+    });
   }
 }

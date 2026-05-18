@@ -2,25 +2,24 @@
   <!-- LOADING -->
   <div class="loading-state" *ngIf="isLoading">
     <div class="spinner"></div>
-    <p>Retrieving student profile...</p>
+    <p>Recherche du profil étudiant...</p>
   </div>
 
   <!-- ERROR -->
   <div class="error-state" *ngIf="errorMessage && !isLoading">
     <i class="fas fa-exclamation-triangle error-icon"></i>
-    <h2>Error</h2>
+    <h2>Erreur</h2>
     <p>{{ errorMessage }}</p>
-    <button class="btn-secondary" (click)="goBack()">Go Back to Scanner</button>
+    <button class="btn-secondary" (click)="goBack()">Retour au scanner</button>
   </div>
 
-  <!-- SUCCESS PROFILE -->
+  <!-- SUCCESS PROFILE & DASHBOARD -->
   <div class="profile-card" *ngIf="studentData && !isLoading">
     <div class="card-header">
       <div class="user-info">
-        <!-- profile picture if available -->
         <div class="avatar">
           <img *ngIf="studentData.user?.profileImage; else initials" 
-               [src]="'http://localhost:5000' + studentData.user.profileImage" 
+               [src]="getProfileImageUrl(studentData.user.profileImage)" 
                alt="Student Photo">
           <ng-template #initials>
             {{ studentData.user?.firstName?.charAt(0) }}{{ studentData.user?.lastName?.charAt(0) }}
@@ -28,53 +27,157 @@
         </div>
         <div class="details">
           <h2>{{ studentData.user?.firstName }} {{ studentData.user?.lastName }}</h2>
-          <span class="badge status-active">Valid Card</span>
+          <span class="badge status-active">Carte Valide</span>
         </div>
       </div>
       <button class="btn-close" (click)="goBack()"><i class="fas fa-times"></i></button>
     </div>
 
     <div class="card-body">
-      <div class="info-grid">
+      <!-- Profile Summary -->
+      <div class="info-grid" style="margin-bottom: 24px;">
         <div class="info-item">
-          <span class="label">Registration No</span>
+          <span class="label">ID Élève</span>
           <span class="value">{{ studentData.registrationNumber }}</span>
         </div>
         <div class="info-item">
-          <span class="label">Classroom</span>
+          <span class="label">Classe</span>
           <span class="value">{{ studentData.classroom }}</span>
         </div>
         <div class="info-item">
           <span class="label">Email</span>
-          <span class="value">{{ studentData.user?.email }}</span>
+          <span class="value">{{ studentData.user?.email || 'N/A' }}</span>
         </div>
       </div>
 
-      <hr class="divider">
-
-      <!-- SECTION: ASSIGN A LOAN -->
-      <div class="loan-section">
-        <h3>Assign a New Book</h3>
-        <p>Select an available book from the catalogue for this student.</p>
-
-        <div class="form-group">
-          <label>Select Book</label>
-          <select [(ngModel)]="selectedBookId" class="modern-select">
-            <option [ngValue]="null" disabled selected>-- Choose a book --</option>
-            <option *ngFor="let book of books" [ngValue]="book.id">
-              {{ book.title }} ({{ book.author }})
-            </option>
-          </select>
-        </div>
-
-        <button 
-          class="btn-primary loan-btn" 
-          [disabled]="!selectedBookId"
-          (click)="confirmLoan()">
-          Confirm Loan (7 Days)
+      <!-- Dashboard Navigation -->
+      <div class="dashboard-tabs">
+        <button class="dash-tab" [class.active]="activeTab === 'new-loan'" (click)="switchTab('new-loan')">
+          <i class="fas fa-book-medical"></i> Nouvel Emprunt
+        </button>
+        <button class="dash-tab" [class.active]="activeTab === 'reservations'" (click)="switchTab('reservations')">
+          <i class="fas fa-bookmark"></i> Réservations 
+          <span class="count-badge" *ngIf="reservations.length > 0">{{ reservations.length }}</span>
+        </button>
+        <button class="dash-tab" [class.active]="activeTab === 'history'" (click)="switchTab('history')">
+          <i class="fas fa-history"></i> Historique ({{ loans.length }})
         </button>
       </div>
 
+      <div class="dashboard-content">
+        
+        <!-- SECTION: NOUVEL EMPRUNT -->
+        <div *ngIf="activeTab === 'new-loan'" class="tab-pane">
+          <div class="limit-status" [ngClass]="{'limit-reached': activeLoansCount >= MAX_LOANS}">
+            <div class="limit-text">
+              <strong>Statut des emprunts :</strong> {{ activeLoansCount }} / {{ MAX_LOANS }} livres empruntés
+            </div>
+            <div class="limit-bar">
+              <div class="limit-fill" [style.width.%]="(activeLoansCount / MAX_LOANS) * 100"></div>
+            </div>
+          </div>
+
+          <div *ngIf="activeLoansCount < MAX_LOANS">
+            <h3>Attribuer un livre</h3>
+            <p>Sélectionnez un livre disponible dans le catalogue pour cet élève.</p>
+
+            <div class="form-group" style="margin-top: 16px;">
+              <label>Livre à emprunter</label>
+              <div style="display: flex; gap: 12px; align-items: stretch;">
+                <select [(ngModel)]="selectedBookId" class="modern-select" style="flex: 1; margin: 0; height: 45px; padding: 10px 12px;">
+                  <option [ngValue]="null" disabled selected>-- Choisir un livre --</option>
+                  <option *ngFor="let book of books" [ngValue]="book.id">
+                    {{ book.title }} ({{ book.author }}) - {{ book.availableCopies }} dispo.
+                  </option>
+                </select>
+                
+                <button 
+                  class="btn btn-primary" 
+                  style="white-space: nowrap; padding: 0 24px; margin: 0; font-size: 14px; height: 45px; border-radius: 8px; display: flex; align-items: center; justify-content: center;"
+                  [disabled]="!selectedBookId"
+                  (click)="confirmLoan()">
+                  <i class="fas fa-check" style="margin-right: 6px;"></i> Confirmer (7 Jours)
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="activeLoansCount >= MAX_LOANS" class="empty-state error-bg">
+            <i class="fas fa-ban"></i>
+            <h3>Limite atteinte</h3>
+            <p>L'élève doit retourner un livre avant de pouvoir en emprunter un nouveau.</p>
+          </div>
+        </div>
+
+        <!-- SECTION: RÉSERVATIONS -->
+        <div *ngIf="activeTab === 'reservations'" class="tab-pane">
+          <div *ngIf="reservations.length === 0" class="empty-state">
+            <i class="fas fa-bookmark" style="color: #cbd5e1;"></i>
+            <p>Aucune réservation en attente.</p>
+          </div>
+
+          <div class="item-list" *ngIf="reservations.length > 0">
+            <div class="list-card" *ngFor="let res of reservations">
+              <div class="card-icon"><i class="fas fa-book"></i></div>
+              <div class="card-info">
+                <h4>{{ res.book?.title }}</h4>
+                <p>Réservé le : {{ res.reservationDate | date:'mediumDate' }}</p>
+                <span class="badge status-pending" *ngIf="res.status === 'PENDING'">En attente</span>
+                <span class="badge status-active" *ngIf="res.status === 'VALIDATED'">Validée</span>
+              </div>
+              <div class="card-actions" *ngIf="res.status === 'PENDING'">
+                <button class="btn-icon btn-success" (click)="validateReservation(res.id)" title="Valider et transformer en emprunt">
+                  <i class="fas fa-check"></i>
+                </button>
+                <button class="btn-icon btn-danger" (click)="cancelReservation(res.id)" title="Annuler la réservation">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION: HISTORIQUE -->
+        <div *ngIf="activeTab === 'history'" class="tab-pane">
+          <div *ngIf="loans.length === 0" class="empty-state">
+            <i class="fas fa-history" style="color: #cbd5e1;"></i>
+            <p>Aucun historique d'emprunt.</p>
+          </div>
+
+          <div class="item-list" *ngIf="loans.length > 0">
+            <div class="list-card" *ngFor="let loan of loans">
+              <div class="card-icon" [ngClass]="{'bg-danger': loan.status === 'ACTIVE' && isOverdue(loan.dueDate), 'bg-success': loan.status === 'RETURNED'}">
+                <i class="fas fa-book"></i>
+              </div>
+              <div class="card-info">
+                <h4>{{ loan.book?.title }}</h4>
+                <p>Emprunté le : {{ loan.loanDate | date:'shortDate' }}</p>
+                <p *ngIf="loan.status === 'ACTIVE'" [class.text-danger]="isOverdue(loan.dueDate)">
+                  Retour prévu : {{ loan.dueDate | date:'shortDate' }}
+                </p>
+                <p *ngIf="loan.status === 'RETURNED'">
+                  Retourné le : {{ loan.returnDate | date:'shortDate' }}
+                </p>
+                
+                <div style="margin-top: 6px;">
+                  <span class="badge" [ngClass]="loan.status === 'ACTIVE' ? 'status-active' : 'status-returned'">
+                    {{ loan.status === 'ACTIVE' ? 'Actif' : 'Retourné' }}
+                  </span>
+                  <span class="badge bg-danger" style="color:white; margin-left:8px;" *ngIf="loan.status === 'ACTIVE' && isOverdue(loan.dueDate)">
+                    En retard
+                  </span>
+                </div>
+              </div>
+              <div class="card-actions" *ngIf="loan.status === 'ACTIVE' && isOverdue(loan.dueDate)">
+                <button class="btn-secondary" (click)="sendReminder(loan)" style="font-size: 12px; padding: 6px 12px;">
+                  <i class="fas fa-bell"></i> Rappel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
 </div>

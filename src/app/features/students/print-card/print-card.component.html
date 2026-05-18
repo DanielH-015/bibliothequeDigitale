@@ -1,0 +1,100 @@
+<div class="print-container" *ngIf="student">
+  
+  <div class="id-card" id="print-area">
+    <!-- Dark Blue Left Section -->
+    <div class="left-section">
+      <div class="school-header">
+        <img src="/images/logo-dschang.jpg" alt="Logo" class="school-logo">
+        <div class="school-titles">
+          <h1>LYCÉE BILINGUE<br>DE DSCHANG</h1>
+          <p>SAVOIR • EXCELLENCE • AVENIR</p>
+        </div>
+      </div>
+
+      <div class="photo-container">
+        <img *ngIf="student.profileImage" [src]="getProfileImageUrl(student.profileImage)" alt="Photo">
+        <div class="photo-placeholder" *ngIf="!student.profileImage">
+          <i class="fas fa-user"></i>
+        </div>
+      </div>
+
+      <div class="card-type-badge">
+        CARTE DE BIBLIOTHÈQUE
+      </div>
+
+      <div class="motto">
+        <i class="fas fa-book-open"></i>
+        <span>Lire aujourd'hui,<br>comprendre demain.</span>
+      </div>
+    </div>
+
+    <!-- Right Section (White) -->
+    <div class="right-section">
+      <!-- Year Ribbon -->
+      <div class="year-badge">
+        {{ getAcademicYear() }}
+      </div>
+      
+      <div class="info-grid">
+        
+        <div class="info-column">
+          <!-- Nom -->
+          <div class="info-row">
+            <i class="fas fa-user icon-field"></i>
+            <div class="field-data">
+              <span class="label">NOM</span>
+              <span class="value uppercase">{{ student.lastName }}</span>
+            </div>
+          </div>
+          
+          <!-- Prenom -->
+          <div class="info-row">
+            <i class="fas fa-id-card icon-field"></i>
+            <div class="field-data">
+              <span class="label">PRÉNOM</span>
+              <span class="value uppercase">{{ student.firstName }}</span>
+            </div>
+          </div>
+          
+          <!-- Classe -->
+          <div class="info-row">
+            <i class="fas fa-graduation-cap icon-field"></i>
+            <div class="field-data">
+              <span class="label">CLASSE</span>
+              <span class="value">{{ student.studentProfile?.classroom || 'N/A' }}</span>
+            </div>
+          </div>
+          
+          <!-- Matricule -->
+          <div class="info-row">
+            <i class="fas fa-address-book icon-field"></i>
+            <div class="field-data">
+              <span class="label">ID ÉLÈVE</span>
+              <span class="value">{{ student.studentProfile?.registrationNumber }}</span>
+            </div>
+          </div>
+          
+          <!-- Expiration -->
+          <div class="info-row">
+            <i class="fas fa-calendar-alt icon-field"></i>
+            <div class="field-data">
+              <span class="label">DATE D'EXPIRATION</span>
+              <span class="value">30/06/2025</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="qr-column">
+          <div class="qr-container">
+            <img *ngIf="qrCodeUrl" [src]="qrCodeUrl" alt="QR Code">
+          </div>
+          <div class="scan-instruction">
+            <i class="fas fa-mobile-alt"></i>
+            <span>Scannez pour accéder<br>aux informations de l'élève</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

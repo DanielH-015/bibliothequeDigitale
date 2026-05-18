@@ -201,3 +201,65 @@ table tr:last-child td {
 table tr:hover {
   background-color: #F8FAFC;
 }
+
+/* Modal styles for the print popup */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Global Print Styles - these must be global to hide layout shell */
+@media print {
+  /* Hide the main layout elements */
+  .sidebar, .navbar, .page-header, .tabs-nav, .tab-content, .header {
+    display: none !important;
+  }
+  
+  /* Reset modal overlay for printing */
+  .modal-overlay {
+    background: transparent !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    backdrop-filter: none !important;
+  }
+
+  .modal-content {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  /* Hide modal buttons and title */
+  .btn-close, .modal-content h2, .modal-content > div:last-child {
+    display: none !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  /* Ensure background graphics print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

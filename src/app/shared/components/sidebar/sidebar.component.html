@@ -1,10 +1,9 @@
 <aside class="sidebar">
   <div class="sidebar-logo">
-    <div class="logo-circle" *ngIf="!currentUser?.profileImage">
-      {{ currentUser ? currentUser.firstName.charAt(0) : 'A' }}
+    <div class="logo-square">
+      <i class="fas fa-book-open"></i>
     </div>
-    <img *ngIf="currentUser?.profileImage" [src]="'http://localhost:5000/' + currentUser.profileImage" class="logo-circle" style="object-fit: cover; padding: 0; border: none;">
-    <h2>{{ currentUser ? currentUser.firstName : 'Admin' }}</h2>
+    <h2>Library</h2>
   </div>
   
   <nav class="sidebar-nav">

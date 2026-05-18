@@ -1,27 +1,41 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
-
-export interface ToastMessage {
-  message: string;
-  type: 'success' | 'error' | 'info';
-}
+import Swal from 'sweetalert2';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ToastService {
-  private toastSubject = new Subject<ToastMessage>();
-  public toastState$ = this.toastSubject.asObservable();
+
+  private Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.addEventListener('mouseenter', Swal.stopTimer)
+      toast.addEventListener('mouseleave', Swal.resumeTimer)
+    }
+  });
 
   showSuccess(message: string): void {
-    this.toastSubject.next({ message, type: 'success' });
+    this.Toast.fire({
+      icon: 'success',
+      title: message
+    });
   }
 
   showError(message: string): void {
-    this.toastSubject.next({ message, type: 'error' });
+    this.Toast.fire({
+      icon: 'error',
+      title: message
+    });
   }
 
   showInfo(message: string): void {
-    this.toastSubject.next({ message, type: 'info' });
+    this.Toast.fire({
+      icon: 'info',
+      title: message
+    });
   }
 }

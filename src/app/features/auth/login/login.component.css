@@ -71,3 +71,26 @@ input.invalid {
 input.invalid:focus {
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  padding-right: 40px;
+}
+
+.password-wrapper i {
+  position: absolute;
+  right: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 16px;
+  transition: color 0.2s;
+}
+
+.password-wrapper i:hover {
+  color: var(--primary-color);
+}
