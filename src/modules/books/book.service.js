@@ -6,7 +6,12 @@ class BookService {
   }
 
   create = async (payload) => {
-    const { title, author, isbn, availableCopies, category, location } = payload;
+    let { title, author, isbn, availableCopies, category, location, coverImage } = payload;
+    
+    // Convert availableCopies to number if it comes from FormData
+    if (availableCopies !== undefined) {
+      availableCopies = parseInt(availableCopies, 10);
+    }
     
     try {
       const newBook = await this.prisma.book.create({
@@ -16,7 +21,8 @@ class BookService {
           isbn,
           availableCopies: availableCopies || 1,
           category,
-          location
+          location,
+          coverImage
         }
       });
       return newBook;
@@ -48,11 +54,15 @@ class BookService {
   }
 
   update = async (id, payload) => {
-    const { title, author, isbn, availableCopies, category, location } = payload;
+    let { title, author, isbn, availableCopies, category, location, coverImage } = payload;
+    
+    if (availableCopies !== undefined) {
+      availableCopies = parseInt(availableCopies, 10);
+    }
     
     return await this.prisma.book.update({
       where: { id },
-      data: { title, author, isbn, availableCopies, category, location }
+      data: { title, author, isbn, availableCopies, category, location, coverImage }
     });
   }
 

@@ -23,12 +23,26 @@ class Server {
     this.io.on('connection', (socket) => {
       console.log(' New client connected via Socket.io:', socket.id);
       
+      // Admin Dashboard joins its specific room to receive isolated scans
+      socket.on('join-admin-room', (adminId) => {
+        if (adminId) {
+          socket.join(`admin_${adminId}`);
+          console.log(` Socket ${socket.id} joined room admin_${adminId}`);
+        }
+      });
+      
       // Listen for the specific 'mobile-scan' event coming from Flutter
       socket.on('mobile-scan', (data) => {
         console.log(' Mobile scan received:', data);
         
-        // Broadcast the event to all connected Angular dashboards immediately
-        this.io.emit('scan-received', data);
+        // If the mobile app provides the logged-in adminId, route it only to that admin's dashboard
+        if (data && data.adminId) {
+          this.io.to(`admin_${data.adminId}`).emit('scan-received', data);
+          console.log(` Scan routed securely to room admin_${data.adminId}`);
+        } else {
+          // Fallback (for older versions or testing without adminId)
+          this.io.emit('scan-received', data);
+        }
       });
 
       socket.on('disconnect', () => {

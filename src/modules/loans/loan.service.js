@@ -79,6 +79,33 @@ class LoanService {
       orderBy: { loanDate: 'desc' }
     });
   }
+
+  notifyOverdue = async (id) => {
+    const loan = await this.prisma.loan.findUnique({
+      where: { id },
+      include: {
+        book: true,
+        student: {
+          include: {
+            user: true
+          }
+        }
+      }
+    });
+
+    if (!loan) throw new Error("Loan not found.");
+    if (loan.status === 'RETURNED') throw new Error("Document is already returned.");
+
+    // Fallback: Use parentEmail if available, otherwise student's user email
+    const emailTarget = loan.student.parentEmail || loan.student.user.email;
+    const studentName = `${loan.student.user.firstName} ${loan.student.user.lastName}`;
+
+    // Import emailService dynamically or assure it's imported at the top
+    const { emailService } = await import('../../utils/email.service.js');
+    await emailService.sendOverdueNotificationEmail(emailTarget, studentName, loan.book.title, loan.dueDate);
+
+    return { success: true, message: "Notification sent successfully." };
+  }
 }
 
 export const loanService = new LoanService();

@@ -2,6 +2,7 @@ import { Router } from '../../utils/router.js';
 import { bookService } from './book.service.js';
 import { verify, requireAdmin } from '../../middlewares/auth.middleware.js';
 import { validateCreate, validateUpdate } from '../../middlewares/book.middleware.js';
+import { upload } from '../../middlewares/upload.middleware.js';
 
 const router = Router();
 
@@ -14,13 +15,19 @@ router.get('/:id', verify, async (req) => {
 });
 
 // Routes of modification accessible only to Admin
-router.post('/', verify, requireAdmin, validateCreate, async (req) => {
+router.post('/', verify, requireAdmin, upload.single('coverImage'), validateCreate, async (req) => {
   const payload = req.body;
+  if (req.file) {
+    payload.coverImage = `/uploads/${req.file.filename}`;
+  }
   return bookService.create(payload);
 });
 
-router.put('/:id', verify, requireAdmin, validateUpdate, async (req) => {
+router.put('/:id', verify, requireAdmin, upload.single('coverImage'), validateUpdate, async (req) => {
   const payload = req.body;
+  if (req.file) {
+    payload.coverImage = `/uploads/${req.file.filename}`;
+  }
   return bookService.update(parseInt(req.params.id), payload);
 });
 

@@ -64,6 +64,33 @@ class EmailService {
       throw new Error("Failed to send password reset email.");
     }
   }
+
+  // Sends an overdue notification email to the student or parent
+  sendOverdueNotificationEmail = async (toEmail, studentName, bookTitle, dueDate) => {
+    const formattedDate = new Date(dueDate).toLocaleDateString();
+    
+    const mailOptions = {
+      from: `"Digital Library" <${process.env.EMAIL_USER}>`,
+      to: toEmail,
+      subject: "Action Required: Overdue Library Document",
+      html: `
+        <h2>Important Notice for ${studentName}</h2>
+        <p>This is a formal reminder that the document <strong>"${bookTitle}"</strong> is overdue.</p>
+        <p>The original return date was: <strong>${formattedDate}</strong>.</p>
+        <p>Please return this document to the library as soon as possible to avoid any penalties.</p>
+        <br/>
+        <p style="color: #888; font-size: 12px;">This is an automated message. If you are using Gmail and prefer to read this in another language, you can click the "Translate message" option at the top of this email.</p>
+      `,
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      console.log(`Overdue notification successfully sent to ${toEmail}`);
+    } catch (error) {
+      console.error("Error sending overdue email:", error);
+      throw new Error("Failed to send overdue notification email.");
+    }
+  }
 }
 
 export const emailService = new EmailService();

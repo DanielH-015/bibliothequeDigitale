@@ -26,6 +26,10 @@ router.delete('/:id', requireAdmin, async (req) => {
   return loanService.cancel(parseInt(req.params.id));
 });
 
+router.post('/:id/notify', requireLibrarianOrAdmin, async (req) => {
+  return loanService.notifyOverdue(parseInt(req.params.id));
+});
+
 // Route: A student (or an admin) can view a student's loan history
 router.get('/student/:studentId', async (req) => {
   return loanService.getByStudentId(parseInt(req.params.studentId));
