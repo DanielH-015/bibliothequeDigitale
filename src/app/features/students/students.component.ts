@@ -18,6 +18,9 @@ export class StudentsComponent implements OnInit {
   public students: any[] = [];
   public isLoading = true;
   public selectedStudentToPrint: any = null;
+  public selectedStudentHistory: any = null;
+  public studentLoans: any[] = [];
+  public isHistoryLoading = false;
 
   public newStudentData = {
     matricule: '',
@@ -226,5 +229,36 @@ export class StudentsComponent implements OnInit {
         this.isEditing = false;
       }
     });
+  }
+
+  // --- HISTORY LOGIC ---
+  viewStudentHistory(studentId: number): void {
+    const student = this.students.find(s => s.id === studentId);
+    if (!student || !student.studentProfile) {
+      this.toastService.showError('Profil étudiant introuvable.');
+      return;
+    }
+    
+    this.selectedStudentHistory = student;
+    this.isHistoryLoading = true;
+    
+    this.apiService.get<any[]>(`/loans/student/${student.studentProfile.id}`).subscribe({
+      next: (loans) => {
+        this.studentLoans = loans;
+        this.isHistoryLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to fetch history', err);
+        this.toastService.showError('Failed to load student history.');
+        this.isHistoryLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  closeHistoryModal(): void {
+    this.selectedStudentHistory = null;
+    this.studentLoans = [];
   }
 }

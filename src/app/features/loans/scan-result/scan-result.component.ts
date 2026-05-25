@@ -196,6 +196,32 @@ export class ScanResultComponent implements OnInit {
     });
   }
 
+  returnBook(loanId: number): void {
+    Swal.fire({
+      title: 'Marquer comme retourné ?',
+      text: "Cela clôturera l'emprunt et remettra le livre en stock.",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#10B981',
+      cancelButtonColor: '#64748B',
+      confirmButtonText: 'Oui, retourné'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.apiService.put(`/loans/${loanId}/return`, {}).subscribe({
+          next: () => {
+            this.toastService.showSuccess("Livre retourné avec succès !");
+            this.fetchStudentLoans(this.studentData.id); // Refresh data
+            this.fetchCatalogue(); // Refresh book count
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            this.toastService.showError("Erreur lors du retour du livre.");
+          }
+        });
+      }
+    });
+  }
+
   sendReminder(loan: any): void {
     Swal.fire({
       title: 'Envoyer un rappel ?',
@@ -207,10 +233,15 @@ export class ScanResultComponent implements OnInit {
       confirmButtonText: '<i class="fas fa-paper-plane"></i> Envoyer'
     }).then((result) => {
       if (result.isConfirmed) {
-        // Mock email sending
-        setTimeout(() => {
-          this.toastService.showSuccess("L'email de rappel a été envoyé à l'élève.");
-        }, 800);
+        this.apiService.post(`/loans/${loan.id}/notify`, {}).subscribe({
+          next: () => {
+            this.toastService.showSuccess("L'email de rappel a été envoyé à l'élève.");
+          },
+          error: (err) => {
+            console.error('Failed to notify student:', err);
+            this.toastService.showError("Erreur lors de l'envoi de l'email.");
+          }
+        });
       }
     });
   }

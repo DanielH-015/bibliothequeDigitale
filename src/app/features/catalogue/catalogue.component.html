@@ -43,7 +43,15 @@
       </thead>
       <tbody>
         <tr *ngFor="let book of books">
-          <td class="primary-cell">{{ book.title }}</td>
+          <td class="primary-cell">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div class="book-cover-mini" style="width: 40px; height: 60px; border-radius: 4px; overflow: hidden; background: #E2E8F0; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <img *ngIf="book.coverImage" [src]="getCoverImageUrl(book.coverImage)" alt="Cover" style="width: 100%; height: 100%; object-fit: cover;">
+                <i *ngIf="!book.coverImage" class="fas fa-book" style="color: #94A3B8;"></i>
+              </div>
+              <span style="font-weight: bold;">{{ book.title }}</span>
+            </div>
+          </td>
           <td>{{ book.author }}</td>
           <td>{{ book.isbn }}</td>
           <td><span class="badge badge-light">{{ book.category || 'N/A' }}</span></td>
@@ -52,8 +60,15 @@
             <span class="status-indicator" [class.status-green]="book.availableCopies > 0" [class.status-red]="book.availableCopies === 0"></span>
             {{ book.availableCopies }} copies
           </td>
-          <td class="actions-cell">
-            <button class="btn-icon danger" (click)="deleteBook(book.id)" title="Delete Book">
+          <td class="actions-cell" style="display: flex; gap: 8px;">
+            <button class="btn-icon" style="background: rgba(16, 185, 129, 0.1); color: #10B981; border: none; border-radius: 6px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer;" 
+                    (click)="openEditModal(book)" 
+                    title="Edit Book">
+              <i class="fas fa-pen"></i>
+            </button>
+            <button class="btn-icon" style="background: rgba(239, 68, 68, 0.1); color: #EF4444; border: none; border-radius: 6px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer;" 
+                    (click)="deleteBook(book.id)" 
+                    title="Delete Book">
               <i class="fas fa-trash"></i>
             </button>
           </td>
@@ -72,42 +87,132 @@
     <h2>Add New Book</h2>
     <p class="subtitle" style="margin-bottom: 20px;">Enter the details of the new book to add it to the catalogue.</p>
     
-    <div class="form-row" style="display: flex; gap: 16px; margin-bottom: 12px;">
-      <div class="form-group" style="flex: 1;">
-        <label style="font-size: 13px; margin-bottom: 4px; display: block;">Title *</label>
-        <input type="text" class="modern-input" [(ngModel)]="newBook.title" placeholder="Book Title" style="padding: 8px 12px;">
+    <div style="display: flex; gap: 20px; margin-bottom: 16px;">
+      <!-- Cover Upload Column -->
+      <div style="width: 120px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center;">
+        <div style="width: 100px; height: 140px; border-radius: 8px; background: #F1F5F9; border: 2px dashed #CBD5E1; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 8px;">
+          <img *ngIf="imagePreview" [src]="imagePreview" alt="Cover Preview" style="width: 100%; height: 100%; object-fit: cover;">
+          <div *ngIf="!imagePreview" style="color: #94A3B8; display: flex; flex-direction: column; align-items: center;">
+            <i class="fas fa-image" style="font-size: 24px; margin-bottom: 4px;"></i>
+            <span style="font-size: 10px;">Cover</span>
+          </div>
+        </div>
+        <input type="file" id="coverImageInput" (change)="onFileSelected($event)" accept="image/*" style="display: none;">
+        <label for="coverImageInput" class="btn btn-outline" style="cursor: pointer; padding: 4px 8px; font-size: 12px; border-radius: 4px;">
+          <i class="fas fa-upload"></i> Upload
+        </label>
       </div>
-      <div class="form-group" style="flex: 1;">
-        <label style="font-size: 13px; margin-bottom: 4px; display: block;">Author *</label>
-        <input type="text" class="modern-input" [(ngModel)]="newBook.author" placeholder="Author Name" style="padding: 8px 12px;">
-      </div>
-    </div>
 
-    <div class="form-row" style="display: flex; gap: 16px; margin-bottom: 12px;">
-      <div class="form-group" style="flex: 1;">
-        <label style="font-size: 13px; margin-bottom: 4px; display: block;">ISBN</label>
-        <input type="text" class="modern-input" [(ngModel)]="newBook.isbn" placeholder="ISBN Number" style="padding: 8px 12px;">
-      </div>
-      <div class="form-group" style="flex: 1;">
-        <label style="font-size: 13px; margin-bottom: 4px; display: block;">Category</label>
-        <input type="text" class="modern-input" [(ngModel)]="newBook.category" placeholder="e.g. Science Fiction" style="padding: 8px 12px;">
-      </div>
-    </div>
+      <!-- Form Column -->
+      <div style="flex: 1;">
+        <div class="form-row" style="display: flex; gap: 16px; margin-bottom: 12px;">
+          <div class="form-group" style="flex: 1;">
+            <label style="font-size: 13px; margin-bottom: 4px; display: block;">Title *</label>
+            <input type="text" class="modern-input" [(ngModel)]="newBook.title" placeholder="Book Title" style="padding: 8px 12px;">
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label style="font-size: 13px; margin-bottom: 4px; display: block;">Author *</label>
+            <input type="text" class="modern-input" [(ngModel)]="newBook.author" placeholder="Author Name" style="padding: 8px 12px;">
+          </div>
+        </div>
 
-    <div class="form-row" style="display: flex; gap: 16px; margin-bottom: 24px;">
-      <div class="form-group" style="flex: 1;">
-        <label style="font-size: 13px; margin-bottom: 4px; display: block;">Location (Shelf)</label>
-        <input type="text" class="modern-input" [(ngModel)]="newBook.location" placeholder="e.g. A1-Shelf 3" style="padding: 8px 12px;">
-      </div>
-      <div class="form-group" style="flex: 1;">
-        <label style="font-size: 13px; margin-bottom: 4px; display: block;">Available Copies</label>
-        <input type="number" class="modern-input" [(ngModel)]="newBook.availableCopies" min="1" style="padding: 8px 12px;">
+        <div class="form-row" style="display: flex; gap: 16px; margin-bottom: 12px;">
+          <div class="form-group" style="flex: 1;">
+            <label style="font-size: 13px; margin-bottom: 4px; display: block;">ISBN *</label>
+            <input type="text" class="modern-input" [(ngModel)]="newBook.isbn" placeholder="ISBN Number" style="padding: 8px 12px;">
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label style="font-size: 13px; margin-bottom: 4px; display: block;">Category *</label>
+            <input type="text" class="modern-input" [(ngModel)]="newBook.category" placeholder="e.g. Science Fiction" style="padding: 8px 12px;">
+          </div>
+        </div>
+
+        <div class="form-row" style="display: flex; gap: 16px; margin-bottom: 24px;">
+          <div class="form-group" style="flex: 1;">
+            <label style="font-size: 13px; margin-bottom: 4px; display: block;">Location (Shelf)</label>
+            <input type="text" class="modern-input" [(ngModel)]="newBook.location" placeholder="e.g. A1-Shelf 3" style="padding: 8px 12px;">
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label style="font-size: 13px; margin-bottom: 4px; display: block;">Available Copies</label>
+            <input type="number" class="modern-input" [(ngModel)]="newBook.availableCopies" min="1" style="padding: 8px 12px;">
+          </div>
+        </div>
       </div>
     </div>
     
-    <div style="display: flex; justify-content: flex-end; gap: 12px;">
+    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #E2E8F0;">
       <button class="btn btn-secondary" (click)="setActiveTab('list')" style="padding: 8px 16px; font-size: 14px;">Cancel</button>
       <button class="btn btn-primary" (click)="saveBook()" style="padding: 8px 16px; font-size: 14px;">Save Book</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT BOOK MODAL -->
+<div class="modal-overlay" *ngIf="selectedBookToEdit">
+  <div class="modal-content" style="width: 100%; max-width: 600px; padding: 24px; background: #fff; border-radius: 12px; position: relative;">
+    <button class="btn-close" (click)="closeEditModal()" style="position: absolute; right: 16px; top: 16px; background: transparent; border: none; font-size: 20px; cursor: pointer; color: #64748B;">
+      <i class="fas fa-times"></i>
+    </button>
+    <h2 style="margin-top: 0; margin-bottom: 20px; color: #0F172A;">Edit Book</h2>
+    
+    <div style="display: flex; gap: 20px;">
+      <!-- Cover Upload Column -->
+      <div style="width: 120px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center;">
+        <div style="width: 100px; height: 140px; border-radius: 8px; background: #F1F5F9; border: 2px dashed #CBD5E1; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 8px;">
+          <img *ngIf="editImagePreview" [src]="editImagePreview" alt="Cover Preview" style="width: 100%; height: 100%; object-fit: cover;">
+          <div *ngIf="!editImagePreview" style="color: #94A3B8; display: flex; flex-direction: column; align-items: center;">
+            <i class="fas fa-image" style="font-size: 24px; margin-bottom: 4px;"></i>
+            <span style="font-size: 10px;">Cover</span>
+          </div>
+        </div>
+        <input type="file" id="editCoverImageInput" (change)="onEditFileSelected($event)" accept="image/*" style="display: none;">
+        <label for="editCoverImageInput" class="btn btn-outline" style="cursor: pointer; padding: 4px 8px; font-size: 12px; border-radius: 4px;">
+          <i class="fas fa-camera"></i> Change
+        </label>
+      </div>
+
+      <!-- Form Column -->
+      <div style="flex: 1;">
+        <div class="form-row" style="display: flex; gap: 16px; margin-bottom: 12px;">
+          <div class="form-group" style="flex: 1;">
+            <label style="font-size: 13px; margin-bottom: 4px; display: block;">Title *</label>
+            <input type="text" class="modern-input" [(ngModel)]="newBook.title" style="padding: 8px 12px;">
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label style="font-size: 13px; margin-bottom: 4px; display: block;">Author *</label>
+            <input type="text" class="modern-input" [(ngModel)]="newBook.author" style="padding: 8px 12px;">
+          </div>
+        </div>
+
+        <div class="form-row" style="display: flex; gap: 16px; margin-bottom: 12px;">
+          <div class="form-group" style="flex: 1;">
+            <label style="font-size: 13px; margin-bottom: 4px; display: block;">ISBN *</label>
+            <input type="text" class="modern-input" [(ngModel)]="newBook.isbn" style="padding: 8px 12px;">
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label style="font-size: 13px; margin-bottom: 4px; display: block;">Category *</label>
+            <input type="text" class="modern-input" [(ngModel)]="newBook.category" style="padding: 8px 12px;">
+          </div>
+        </div>
+
+        <div class="form-row" style="display: flex; gap: 16px; margin-bottom: 16px;">
+          <div class="form-group" style="flex: 1;">
+            <label style="font-size: 13px; margin-bottom: 4px; display: block;">Location</label>
+            <input type="text" class="modern-input" [(ngModel)]="newBook.location" style="padding: 8px 12px;">
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label style="font-size: 13px; margin-bottom: 4px; display: block;">Available Copies</label>
+            <input type="number" class="modern-input" [(ngModel)]="newBook.availableCopies" min="1" style="padding: 8px 12px;">
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #E2E8F0;">
+      <button class="btn btn-secondary" (click)="closeEditModal()" [disabled]="isEditing">Cancel</button>
+      <button class="btn btn-primary" (click)="saveBookEdit()" [disabled]="isEditing">
+        {{ isEditing ? 'Saving...' : 'Save Changes' }}
+      </button>
     </div>
   </div>
 </div>

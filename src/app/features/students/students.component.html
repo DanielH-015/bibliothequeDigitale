@@ -68,6 +68,11 @@
                     title="Edit Student">
               <i class="fas fa-pen"></i>
             </button>
+            <button class="btn-icon" style="background: rgba(245, 158, 11, 0.1); color: #F59E0B; border: none; border-radius: 6px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer;" 
+                    (click)="viewStudentHistory(student.id)" 
+                    title="View History">
+              <i class="fas fa-history"></i>
+            </button>
             <button class="btn-icon" style="background: rgba(59, 130, 246, 0.1); color: #3B82F6; border: none; border-radius: 6px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer;" 
                     (click)="printCard(student.id)" 
                     *ngIf="student.isValid" 
@@ -204,6 +209,56 @@
       <button class="btn btn-primary" (click)="saveStudentEdit()" style="padding: 6px 12px; font-size: 13px; flex: 1;">
         Enregistrer
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY MODAL -->
+<div class="modal-overlay" *ngIf="selectedStudentHistory">
+  <div class="modal-content" style="width: 100%; max-width: 600px; padding: 24px; background: #fff; border-radius: 12px; position: relative;">
+    <button class="btn-close" (click)="closeHistoryModal()" style="position: absolute; right: 16px; top: 16px; background: transparent; border: none; font-size: 20px; cursor: pointer; color: #64748B;">
+      <i class="fas fa-times"></i>
+    </button>
+    <h2 style="margin-top: 0; margin-bottom: 20px; color: #0F172A;">
+      Loan History: {{ selectedStudentHistory.firstName }} {{ selectedStudentHistory.lastName }}
+    </h2>
+    
+    <div *ngIf="isHistoryLoading" style="text-align: center; padding: 40px 0;">
+      <div class="spinner"></div>
+      <p style="color: #64748B; margin-top: 10px;">Loading history...</p>
+    </div>
+
+    <div *ngIf="!isHistoryLoading">
+      <table class="modern-table" style="width: 100%;">
+        <thead>
+          <tr style="background-color: #F1F5F9; text-align: left;">
+            <th style="padding: 12px; font-size: 13px; color: #64748B;">Document</th>
+            <th style="padding: 12px; font-size: 13px; color: #64748B;">Loan Date</th>
+            <th style="padding: 12px; font-size: 13px; color: #64748B;">Due Date</th>
+            <th style="padding: 12px; font-size: 13px; color: #64748B;">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let loan of studentLoans" style="border-bottom: 1px solid #E2E8F0;">
+            <td style="padding: 12px; font-weight: 500; color: #0F172A;">{{ loan.book?.title }}</td>
+            <td style="padding: 12px; color: #64748B;">{{ loan.loanDate | date:'shortDate' }}</td>
+            <td style="padding: 12px; color: #64748B;">{{ loan.dueDate | date:'shortDate' }}</td>
+            <td style="padding: 12px;">
+              <span *ngIf="loan.status === 'ACTIVE'" style="background: #FEF3C7; color: #D97706; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold;">ACTIVE</span>
+              <span *ngIf="loan.status === 'RETURNED'" style="background: #D1FAE5; color: #059669; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold;">RETURNED</span>
+            </td>
+          </tr>
+          <tr *ngIf="studentLoans.length === 0">
+            <td colspan="4" style="padding: 24px; text-align: center; color: #64748B;">
+              No loan history found for this student.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div style="margin-top: 24px; text-align: right;">
+      <button class="btn btn-secondary" (click)="closeHistoryModal()">Close</button>
     </div>
   </div>
 </div>

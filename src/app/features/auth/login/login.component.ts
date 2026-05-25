@@ -50,8 +50,17 @@ export class LoginComponent {
       next: () => {
         this.isLoading = false;
         this.cdr.detectChanges();
-        this.toastService.showSuccess("Welcome back!");
-        this.router.navigate(['/dashboard']);
+        
+        const role = this.authService.getUserRole();
+        if (role === 'STUDENT') {
+          this.authService.logout();
+          this.errorMessage = 'Access denied. This interface is reserved for staff.';
+          this.toastService.showError(this.errorMessage);
+          this.cdr.detectChanges();
+        } else {
+          this.toastService.showSuccess("Welcome back!");
+          this.router.navigate(['/dashboard']);
+        }
       },
       error: (err) => {
         this.isLoading = false;

@@ -62,27 +62,145 @@ export class CatalogueComponent implements OnInit {
     }
   }
 
+  // File upload state
+  public selectedCoverImage: File | null = null;
+  public editSelectedCoverImage: File | null = null;
+  public imagePreview: string | null = null;
+  public editImagePreview: string | null = null;
+
+  // Edit State
+  public selectedBookToEdit: any = null;
+  public isEditing = false;
+  
+  private backendUrl = 'http://localhost:5000/';
+
+  public getCoverImageUrl(imagePath: string): string {
+    if (!imagePath) return '';
+    if (imagePath.startsWith('http')) return imagePath;
+    if (imagePath.startsWith('/')) return this.backendUrl + imagePath.substring(1);
+    return this.backendUrl + imagePath;
+  }
+
+  onFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedCoverImage = file;
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.imagePreview = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  onEditFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.editSelectedCoverImage = file;
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.editImagePreview = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
   resetForm(): void {
     this.newBook = { title: '', author: '', isbn: '', availableCopies: 1, category: '', location: '' };
+    this.selectedCoverImage = null;
+    this.imagePreview = null;
   }
 
   saveBook(): void {
-    if (!this.newBook.title || !this.newBook.author) {
-      this.toastService.showError("Title and Author are required.");
+    if (!this.newBook.title || !this.newBook.author || !this.newBook.isbn || !this.newBook.category) {
+      this.toastService.showError("Title, Author, ISBN, and Category are required fields.");
       return;
     }
 
-    this.apiService.post('/books', this.newBook).subscribe({
+    const formData = new FormData();
+    formData.append('title', this.newBook.title);
+    formData.append('author', this.newBook.author);
+    formData.append('isbn', this.newBook.isbn);
+    formData.append('availableCopies', this.newBook.availableCopies.toString());
+    formData.append('category', this.newBook.category);
+    formData.append('location', this.newBook.location);
+    if (this.selectedCoverImage) {
+      formData.append('coverImage', this.selectedCoverImage);
+    }
+
+    this.apiService.post('/books', formData).subscribe({
       next: () => {
         this.toastService.showSuccess("Book added successfully!");
         this.resetForm();
         this.setActiveTab('list');
-        this.fetchBooks(); // Refresh list
+        this.fetchBooks();
         this.cdr.detectChanges();
       },
       error: (err) => {
-        this.toastService.showError("Failed to add book. Make sure ISBN is unique.");
+        const errorMessage = err.error?.message || "Failed to add book. Make sure ISBN is unique.";
+        this.toastService.showError(errorMessage);
         console.error(err);
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  openEditModal(book: any): void {
+    this.selectedBookToEdit = book;
+    this.newBook = {
+      title: book.title,
+      author: book.author,
+      isbn: book.isbn,
+      availableCopies: book.availableCopies,
+      category: book.category || '',
+      location: book.location || ''
+    };
+    if (book.coverImage) {
+      this.editImagePreview = this.getCoverImageUrl(book.coverImage);
+    } else {
+      this.editImagePreview = null;
+    }
+    this.editSelectedCoverImage = null;
+  }
+
+  closeEditModal(): void {
+    this.selectedBookToEdit = null;
+    this.editSelectedCoverImage = null;
+    this.editImagePreview = null;
+    this.resetForm();
+  }
+
+  saveBookEdit(): void {
+    if (!this.newBook.title || !this.newBook.author || !this.newBook.isbn || !this.newBook.category) {
+      this.toastService.showError("Title, Author, ISBN, and Category are required fields.");
+      return;
+    }
+
+    this.isEditing = true;
+    const formData = new FormData();
+    formData.append('title', this.newBook.title);
+    formData.append('author', this.newBook.author);
+    formData.append('isbn', this.newBook.isbn);
+    formData.append('availableCopies', this.newBook.availableCopies.toString());
+    formData.append('category', this.newBook.category);
+    formData.append('location', this.newBook.location);
+    if (this.editSelectedCoverImage) {
+      formData.append('coverImage', this.editSelectedCoverImage);
+    }
+
+    this.apiService.put(`/books/${this.selectedBookToEdit.id}`, formData).subscribe({
+      next: () => {
+        this.toastService.showSuccess("Book updated successfully!");
+        this.fetchBooks();
+        this.closeEditModal();
+        this.isEditing = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        const errorMessage = err.error?.message || "Failed to update book.";
+        this.toastService.showError(errorMessage);
+        console.error(err);
+        this.isEditing = false;
         this.cdr.detectChanges();
       }
     });

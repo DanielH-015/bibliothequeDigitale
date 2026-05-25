@@ -1,6 +1,12 @@
-<div class="dashboard-header">
-  <h1>Dashboard Overview</h1>
-  <p>Welcome back, Admin. Here is what's happening in the library today.</p>
+<div class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center;">
+  <div>
+    <h1>Dashboard Overview</h1>
+    <p>Welcome back, Admin. Here is what's happening in the library today.</p>
+  </div>
+  <button onclick="window.print()" class="print-button" style="background-color: var(--primary-color); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+    Print Report
+  </button>
 </div>
 
 <div class="stats-grid">
@@ -85,4 +91,51 @@
     </table>
   </div>
 
+</div>
+
+<!-- Overdue Loans Table -->
+<div class="stats-tables-container" style="margin-top: 24px;">
+  <div class="card" style="border-left: 4px solid #EF4444;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h3 style="font-size: 18px; color: #EF4444; margin: 0;">Overdue Loans (Requires Action)</h3>
+      <span style="background-color: #FEE2E2; color: #EF4444; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: bold;">
+        {{ overdueLoans.length }} LATE
+      </span>
+    </div>
+    
+    <table class="modern-table" style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr style="background-color: #F1F5F9; text-align: left;">
+          <th style="padding: 12px; font-size: 12px; color: #64748B;">STUDENT</th>
+          <th style="padding: 12px; font-size: 12px; color: #64748B;">BOOK</th>
+          <th style="padding: 12px; font-size: 12px; color: #64748B;">DUE DATE</th>
+          <th style="padding: 12px; font-size: 12px; color: #64748B;">ACTION</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let loan of overdueLoans" style="border-bottom: 1px solid #E2E8F0; background-color: #FEF2F2;">
+          <td style="padding: 12px; font-weight: 500; color: #0F172A;">
+            {{ loan.student?.user?.firstName }} {{ loan.student?.user?.lastName }}
+          </td>
+          <td style="padding: 12px; color: #0F172A;">{{ loan.book?.title }}</td>
+          <td style="padding: 12px; font-size: 13px; color: #EF4444; font-weight: bold;">
+            {{ loan.dueDate | date:'shortDate' }}
+          </td>
+          <td style="padding: 12px;">
+            <button 
+              (click)="notifyStudent(loan.id)"
+              [disabled]="isNotifying"
+              style="background-color: #EF4444; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: opacity 0.2s;">
+              {{ isNotifying ? 'Sending...' : 'Notify Student' }}
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="overdueLoans.length === 0">
+          <td colspan="4" style="padding: 24px; text-align: center; color: #10B981; font-weight: 500;">
+            Excellent! There are no overdue documents at the moment.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>

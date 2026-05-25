@@ -24,3 +24,25 @@
   margin-top: 80px;
   height: calc(100vh - 80px);
 }
+
+@media print {
+  .admin-wrapper, .main-content, .page-container {
+    height: auto !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+  
+  .page-container {
+    margin-top: 0 !important;
+    padding: 0 !important;
+  }
+  
+  /* Hide sidebar and header during print */
+  app-sidebar, app-header {
+    display: none !important;
+  }
+  
+  .main-content {
+    margin-left: 0 !important;
+  }
+}

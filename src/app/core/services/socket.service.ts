@@ -21,6 +21,11 @@ export class SocketService {
   public connect(): void {
     if (!this.socket.connected) {
       this.socket.connect();
+      
+      const adminId = localStorage.getItem('user_id');
+      if (adminId) {
+        this.socket.emit('join-admin-room', adminId);
+      }
     }
   }
 
