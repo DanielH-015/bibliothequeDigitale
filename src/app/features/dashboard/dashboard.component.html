@@ -124,9 +124,9 @@
           <td style="padding: 12px;">
             <button 
               (click)="notifyStudent(loan.id)"
-              [disabled]="isNotifying"
+              [disabled]="notifyingLoans.has(loan.id)"
               style="background-color: #EF4444; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: opacity 0.2s;">
-              {{ isNotifying ? 'Sending...' : 'Notify Student' }}
+              {{ notifyingLoans.has(loan.id) ? 'Sending...' : 'Notify Student' }}
             </button>
           </td>
         </tr>

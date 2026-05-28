@@ -169,8 +169,8 @@
                 </div>
               </div>
               <div class="card-actions" *ngIf="loan.status === 'ACTIVE'">
-                <button class="btn-primary" (click)="returnBook(loan.id)" style="font-size: 12px; padding: 6px 12px; margin-right: 8px;">
-                  <i class="fas fa-undo"></i> Marquer comme retourné
+                <button class="btn-return" (click)="returnBook(loan.id)" style="font-size: 12px; padding: 6px 12px; margin-right: 8px;">
+                  <i class="fas fa-undo"></i> Mark Returned
                 </button>
                 <button *ngIf="isOverdue(loan.dueDate)" class="btn-secondary" (click)="sendReminder(loan)" style="font-size: 12px; padding: 6px 12px;">
                   <i class="fas fa-bell"></i> Rappel

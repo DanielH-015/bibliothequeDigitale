@@ -17,7 +17,6 @@ export class DashboardComponent implements OnInit {
   public totalStudents = 0;
   public isLoading = true;
   public errorMessage = '';
-  public isNotifying = false;
 
   public recentLoans: any[] = [];
   public topBooks: any[] = [];
@@ -87,21 +86,23 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  public notifyingLoans = new Set<number>();
+
   notifyStudent(loanId: number): void {
-    if (this.isNotifying) return;
-    this.isNotifying = true;
+    if (this.notifyingLoans.has(loanId)) return;
+    this.notifyingLoans.add(loanId);
     this.cdr.detectChanges();
 
     this.apiService.post(`/loans/${loanId}/notify`, {}).subscribe({
       next: () => {
         this.toastService.showSuccess('Notification email sent successfully!');
-        this.isNotifying = false;
+        this.notifyingLoans.delete(loanId);
         this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Failed to notify student:', err);
         this.toastService.showError('Failed to send notification email.');
-        this.isNotifying = false;
+        this.notifyingLoans.delete(loanId);
         this.cdr.detectChanges();
       }
     });

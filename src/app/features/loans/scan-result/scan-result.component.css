@@ -333,6 +333,31 @@
   color: white;
 }
 
+.btn-return {
+  background-color: transparent;
+  color: #10B981;
+  border: 1px solid #10B981;
+  padding: 6px 12px;
+  border-radius: var(--border-radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-return:hover {
+  background-color: #10B981;
+  color: white;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+.btn-return:active {
+  transform: translateY(1px);
+}
+
 .modern-select {
   width: 100%;
   padding: 12px;
