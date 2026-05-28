@@ -31,6 +31,7 @@ class AppTheme {
     appBarTheme: const AppBarTheme(
       backgroundColor: secondaryColor, // Deep blue app bar in light mode
       foregroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent, // Fixes Material 3 scroll blur
       elevation: 0,
       centerTitle: true,
       iconTheme: IconThemeData(color: Colors.white),
@@ -82,6 +83,7 @@ class AppTheme {
     appBarTheme: const AppBarTheme(
       backgroundColor: darkSurface,
       foregroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent, // Fixes Material 3 scroll blur
       elevation: 0,
       centerTitle: true,
       iconTheme: IconThemeData(color: primaryColor), // Amber icons in dark mode

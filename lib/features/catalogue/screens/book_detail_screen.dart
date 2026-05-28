@@ -64,7 +64,18 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                     BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 15, offset: const Offset(0, 10))
                   ],
                 ),
-                child: Icon(Icons.menu_book_rounded, size: 100, color: primaryColor.withValues(alpha: 0.5)),
+                clipBehavior: Clip.hardEdge,
+                child: (widget.book['coverImage'] != null && widget.book['coverImage'].toString().isNotEmpty)
+                    ? Image.network(
+                        ApiClient.getImageUrl(widget.book['coverImage']),
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Icon(
+                          Icons.menu_book_rounded,
+                          size: 80,
+                          color: primaryColor.withValues(alpha: 0.5),
+                        ),
+                      )
+                    : Icon(Icons.menu_book_rounded, size: 100, color: primaryColor.withValues(alpha: 0.5)),
               ),
             ),
             const SizedBox(height: 30),

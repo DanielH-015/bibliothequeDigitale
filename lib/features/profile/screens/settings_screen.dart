@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/network/api_client.dart';
 import '../../auth/screens/login_screen.dart';
+import '../../notifications/screens/notifications_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -77,8 +78,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
@@ -109,7 +108,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   leading: Icon(Icons.notifications_outlined, color: primaryColor),
                   title: const Text('Notifications'),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-                  onTap: () {}, // Prepare for a future evolution
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const NotificationsScreen()),
+                    );
+                  }, 
                 ),
                 const Divider(height: 1),
                 ListTile(

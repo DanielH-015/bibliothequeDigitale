@@ -253,7 +253,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         child: ElevatedButton(
                           onPressed: _isLoading ? null : _handleRegister,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
                             shadowColor: Colors.transparent,
                           ),
                           child: _isLoading

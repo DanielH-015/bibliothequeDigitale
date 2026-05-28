@@ -26,15 +26,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _parentEmailController;
 
   // Dropdown Options & Selected Values
-  final List<String> _classroomOptions = ['L1', 'L2', 'L3', 'M1', 'M2', 'PhD'];
+  final List<String> _classroomOptions = [
+    '6ème', '5ème', '4ème', '3ème', 'Seconde', 'Première', 'Terminale',
+    'Form 1', 'Form 2', 'Form 3', 'Form 4', 'Form 5', 'Lower Sixth', 'Upper Sixth'
+  ];
   final List<String> _studyStreamOptions = [
-    'Computer Science',
-    'Mathematics',
-    'Physics',
-    'Literature',
-    'Business',
-    'Law',
-    'Medicine',
+    'A', 'C', 'D', 'Arts', 'Science', 'None'
   ];
 
   String? _selectedClassroom;
@@ -315,6 +312,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     required Function(String?) onChanged,
   }) {
     return DropdownButtonFormField<String>(
+      isExpanded: true,
+      menuMaxHeight: 350,
+      dropdownColor: Theme.of(context).colorScheme.surface,
+      borderRadius: BorderRadius.circular(15),
       initialValue: currentValue,
       decoration: InputDecoration(labelText: label, prefixIcon: Icon(icon)),
       items: options.map((String val) {

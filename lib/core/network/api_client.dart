@@ -9,6 +9,14 @@ import '../config/app_config.dart';
 class ApiClient {
   // Base URL of our Node.js backend
   static const String baseUrl = AppConfig.baseUrl;
+  static const String baseMediaUrl = AppConfig.socketUrl;
+
+  // Safely construct a full image URL, handling double slashes
+  static String getImageUrl(String? path) {
+    if (path == null || path.isEmpty) return '';
+    final cleanPath = path.startsWith('/') ? path.substring(1) : path;
+    return '$baseMediaUrl/$cleanPath';
+  }
   
   // Local storage keys
   static const String _tokenKey = 'jwt_token';
@@ -319,6 +327,54 @@ class ApiClient {
 
 
 
+  // Fetch Notifications
+  static Future<List<dynamic>?> getNotifications() async {
+    try {
+      final headers = await getAuthHeaders();
+      final response = await http.get(
+        Uri.parse('$baseUrl/notifications'), 
+        headers: headers,
+      );
 
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body); 
+      }
+      return null;
+    } catch (e) {
+      debugPrint('Notifications Exception: $e');
+      return null;
+    }
+  }
 
+  // Mark Notification as Read
+  static Future<bool> markNotificationAsRead(int notificationId) async {
+    try {
+      final headers = await getAuthHeaders();
+      final response = await http.put(
+        Uri.parse('$baseUrl/notifications/$notificationId/read'), 
+        headers: headers,
+      );
+
+      return response.statusCode == 200;
+    } catch (e) {
+      debugPrint('Notification Read Exception: $e');
+      return false;
+    }
+  }
+
+  // Delete Notification
+  static Future<bool> deleteNotification(int notificationId) async {
+    try {
+      final headers = await getAuthHeaders();
+      final response = await http.delete(
+        Uri.parse('$baseUrl/notifications/$notificationId'), 
+        headers: headers,
+      );
+
+      return response.statusCode == 200;
+    } catch (e) {
+      debugPrint('Notification Delete Exception: $e');
+      return false;
+    }
+  }
 }

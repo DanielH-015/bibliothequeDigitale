@@ -6,6 +6,7 @@ import '../../auth/screens/login_screen.dart';
 import '../../profile/screens/profile_screen.dart';
 import '../../catalogue/screens/catalogue_screen.dart';
 import '../../profile/screens/settings_screen.dart';
+import '../../notifications/screens/notifications_screen.dart';
 
 
 
@@ -170,11 +171,11 @@ class _HomeScreenState extends State<HomeScreen> {
     final Map<String, dynamic> profileData =
         _studentData!['studentProfile'] ?? {};
 
-    // Count active loans
     final List<dynamic> allLoans = profileData['loans'] ?? [];
-    final int activeLoansCount = allLoans
+    final List<dynamic> activeLoans = allLoans
         .where((loan) => loan['status'] == 'ACTIVE')
-        .length;
+        .toList();
+    final int activeLoansCount = activeLoans.length;
 
     // Extract Pending Reservations from backend data
     final List<dynamic> allReservations = profileData['reservations'] ?? [];
@@ -253,7 +254,96 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
+
+            // Active Loans Carousel
+            if (activeLoans.isNotEmpty) ...[
+              SizedBox(
+                height: 140,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: activeLoans.length,
+                  itemBuilder: (context, index) {
+                    final loan = activeLoans[index];
+                    final book = loan['book'] ?? {};
+                    final title = book['title'] ?? 'Unknown Book';
+                    final coverImage = book['coverImage'];
+                    
+                    // Format due date
+                    final DateTime dueDate = DateTime.parse(loan['dueDate']);
+                    final String formattedDate = '${dueDate.day.toString().padLeft(2, '0')}/${dueDate.month.toString().padLeft(2, '0')}/${dueDate.year}';
+                    
+                    return Container(
+                      width: 250,
+                      margin: const EdgeInsets.only(right: 15, bottom: 10),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 5,
+                            offset: const Offset(0, 3),
+                          )
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          // Cover Image
+                          Container(
+                            width: 60,
+                            height: 85,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: primaryColor.withValues(alpha: 0.1),
+                            ),
+                            clipBehavior: Clip.hardEdge,
+                            child: (coverImage != null && coverImage.toString().isNotEmpty)
+                                ? Image.network(
+                                    ApiClient.getImageUrl(coverImage),
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) => Icon(Icons.menu_book, color: primaryColor.withValues(alpha: 0.5)),
+                                  )
+                                : Icon(Icons.menu_book, color: primaryColor.withValues(alpha: 0.5)),
+                          ),
+                          const SizedBox(width: 15),
+                          // Details
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  title,
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 8),
+                                const Text(
+                                  'Due Date:',
+                                  style: TextStyle(fontSize: 11, color: Colors.grey),
+                                ),
+                                Text(
+                                  formattedDate,
+                                  style: TextStyle(
+                                    fontSize: 12, 
+                                    fontWeight: FontWeight.w600,
+                                    color: dueDate.isBefore(DateTime.now()) ? Colors.red : primaryColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
 
             Text(
               'Quick Actions',
@@ -449,9 +539,44 @@ class _HomeScreenState extends State<HomeScreen> {
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_none),
-            onPressed: () {},
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.notifications_none),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const NotificationsScreen()),
+                  ).then((_) => _fetchProfile()); // Refresh profile to update badge when coming back
+                },
+              ),
+              if (_studentData != null && (_studentData!['unreadNotificationsCount'] ?? 0) > 0)
+                Positioned(
+                  right: 8,
+                  top: 8,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 16,
+                      minHeight: 16,
+                    ),
+                    child: Text(
+                      '${_studentData!['unreadNotificationsCount']}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+            ],
           ),
           PopupMenuButton<String>(
             icon: const Icon(Icons.menu),

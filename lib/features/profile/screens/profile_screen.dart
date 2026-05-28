@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/network/api_client.dart';
 import 'edit_profile_screen.dart';
+import 'loan_history_screen.dart';
 
 
 class ProfileScreen extends StatefulWidget {
@@ -141,7 +142,7 @@ final String? profileImageUrl = profileI['studentPhoto'];
               backgroundColor: Theme.of(context).colorScheme.primary,
               // NOUVEAU : On affiche l'image du serveur si elle existe !
               backgroundImage: profileImageUrl != null && profileImageUrl.isNotEmpty
-                  ? NetworkImage('${ApiClient.baseUrl.replaceAll('/api', '')}/$profileImageUrl')
+                  ? NetworkImage('${ApiClient.baseMediaUrl}/$profileImageUrl')
                   : null,
               child: (profileImageUrl == null || profileImageUrl.isEmpty)
                   ? Text(
@@ -182,6 +183,35 @@ final String? profileImageUrl = profileI['studentPhoto'];
                   _buildInfoRow(Icons.badge_outlined, 'Registration Number', regNumber),
                   _buildInfoRow(Icons.class_outlined, 'Classroom', classroom),
                   _buildInfoRow(Icons.book_outlined, 'Study Stream', studyStream),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            
+            // --- ACTIONS CARD ---
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4)),
+                ],
+              ),
+              child: Column(
+                children: [
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Icon(Icons.history_edu, color: Theme.of(context).colorScheme.primary),
+                    title: const Text('View Loan History', style: TextStyle(fontWeight: FontWeight.bold)),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const LoanHistoryScreen()),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),

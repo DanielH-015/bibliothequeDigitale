@@ -149,7 +149,7 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Book Cover Placeholder
+                            // Book Cover Placeholder or Real Image
                             Expanded(
                               child: Container(
                                 width: double.infinity,
@@ -160,11 +160,22 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
                                     topRight: Radius.circular(15),
                                   ),
                                 ),
-                                child: Icon(
-                                  Icons.menu_book_rounded,
-                                  size: 50,
-                                  color: primaryColor.withValues(alpha: 0.5),
-                                ),
+                                clipBehavior: Clip.hardEdge,
+                                child: (book['coverImage'] != null && book['coverImage'].toString().isNotEmpty)
+                                    ? Image.network(
+                                        ApiClient.getImageUrl(book['coverImage']),
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) => Icon(
+                                          Icons.menu_book_rounded,
+                                          size: 50,
+                                          color: primaryColor.withValues(alpha: 0.5),
+                                        ),
+                                      )
+                                    : Icon(
+                                        Icons.menu_book_rounded,
+                                        size: 50,
+                                        color: primaryColor.withValues(alpha: 0.5),
+                                      ),
                               ),
                             ),
 

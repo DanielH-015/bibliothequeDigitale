@@ -2,6 +2,7 @@ import 'package:socket_io_client/socket_io_client.dart' as io_client;
 import 'package:flutter/foundation.dart';
 import 'dart:async';
 import '../config/app_config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SocketClient {
   static const String serverUrl = AppConfig.socketUrl;
@@ -14,11 +15,17 @@ class SocketClient {
 
     socket.connect();
 
-    socket.onConnect((_) {
+    socket.onConnect((_) async {
       debugPrint('Connected to Socket.io server from Flutter!');
       
-      socket.emit('mobile-scan', {'studentId': studentId});
-      debugPrint('Sent mobile-scan event for student: $studentId');
+      final prefs = await SharedPreferences.getInstance();
+      final adminId = prefs.getInt('user_id');
+
+      socket.emit('mobile-scan', {
+        'studentId': studentId,
+        'adminId': adminId
+      });
+      debugPrint('Sent mobile-scan event for student: $studentId, admin: $adminId');
       
       Future.delayed(const Duration(seconds: 1), () {
         socket.disconnect();
