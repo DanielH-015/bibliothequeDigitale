@@ -63,9 +63,12 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
       body: SafeArea(
         bottom: false,
         child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // HEADER
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Column(
+                children: [
+                  // HEADER
               Stack(
                 children: [
                   Container(
@@ -164,6 +167,8 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  ),
+);
+}
 }

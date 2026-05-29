@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../../core/network/api_client.dart';
 import '../../../shared/widgets/custom_snackbar.dart';
@@ -46,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _handleLogout() async {
     await ApiClient.logout();
     if (mounted) {
-      CustomSnackBar.showInfo(context, 'Successfully logged out');
+      CustomSnackBar.showInfo(context, 'successfully_logged_out'.tr());
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -86,11 +87,11 @@ class _HomeScreenState extends State<HomeScreen> {
       
       if (mounted) {
         if (success) {
-          CustomSnackBar.showSuccess(context, 'Reservation cancelled successfully');
+          CustomSnackBar.showSuccess(context, 'reservation_cancelled_success'.tr());
           _fetchProfile(); // Reload datas 
         } else {
           setState(() => _isLoading = false);
-          CustomSnackBar.showError(context, 'Failed to cancel reservation');
+          CustomSnackBar.showError(context, 'failed_cancel_reservation'.tr());
         }
       }
     }
@@ -113,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          title: const Text('My QR Code', textAlign: TextAlign.center),
+          title: Text('my_qr_code'.tr(), textAlign: TextAlign.center),
           content: SizedBox(
             width: 250,
             height: 250,
@@ -187,15 +188,18 @@ class _HomeScreenState extends State<HomeScreen> {
     return RefreshIndicator(
       onRefresh: _fetchProfile,
       color: primaryColor,
-      child: SingleChildScrollView(
-        physics:
-            const AlwaysScrollableScrollPhysics(), // Required for RefreshIndicator to work
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: SingleChildScrollView(
+            physics:
+                const AlwaysScrollableScrollPhysics(), // Required for RefreshIndicator to work
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Welcome back,',
+              'welcome_back'.tr(),
               style: TextStyle(
                 fontSize: 16,
                 color: Theme.of(
@@ -238,13 +242,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   const Icon(Icons.menu_book, color: Colors.white, size: 40),
                   const SizedBox(height: 15),
-                  const Text(
-                    'Active Loans',
-                    style: TextStyle(color: Colors.white70, fontSize: 16),
+                  Text(
+                    'active_loans'.tr(),
+                    style: const TextStyle(color: Colors.white70, fontSize: 16),
                   ),
                   const SizedBox(height: 5),
                   Text(
-                    '$activeLoansCount Book(s)',
+                    '$activeLoansCount ${'books'.tr()}',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 28,
@@ -346,7 +350,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
 
             Text(
-              'Quick Actions',
+              'quick_actions'.tr(),
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -381,7 +385,7 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Pending Reservations',
+                  'pending_reservations'.tr(),
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -473,8 +477,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  ),
+);
+}
 
   Widget _buildActionCard(
     BuildContext context,
@@ -532,10 +538,10 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Text(
           // Dynamic title based on active tab
           _currentIndex == 0
-              ? 'Dashboard'
+              ? 'dashboard'.tr()
               : _currentIndex == 1
-              ? 'Catalogue'
-              : 'My Profile',
+              ? 'catalogue'.tr()
+              : 'my_profile'.tr(),
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         actions: [
@@ -640,13 +646,13 @@ class _HomeScreenState extends State<HomeScreen> {
             _currentIndex = index;
           });
         },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+        items: [
+          BottomNavigationBarItem(icon: const Icon(Icons.home), label: 'home'.tr()),
           BottomNavigationBarItem(
-            icon: Icon(Icons.library_books),
-            label: 'Catalogue',
+            icon: const Icon(Icons.library_books),
+            label: 'catalogue'.tr(),
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          BottomNavigationBarItem(icon: const Icon(Icons.person), label: 'profile'.tr()),
         ],
       ),
     );

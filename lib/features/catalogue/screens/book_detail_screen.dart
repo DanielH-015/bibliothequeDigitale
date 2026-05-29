@@ -47,9 +47,12 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Book Details')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(25.0),
-        child: Column(
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(25.0),
+            child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Big Book Cover Placeholder
@@ -107,6 +110,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           ],
         ),
       ),
+    ),
+  ),
       
       // Floating Action Button for Reservation at the bottom
       bottomNavigationBar: SafeArea(

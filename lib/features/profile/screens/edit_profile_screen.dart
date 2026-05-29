@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../core/network/api_client.dart';
 import '../../../shared/widgets/custom_snackbar.dart';
 
@@ -122,15 +123,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (!textSuccess) {
         CustomSnackBar.showError(
           context,
-          'Failed to update profile information. Please try again.',
+          'failed_update_profile'.tr(),
         );
       } else if (!photoSuccess) {
         CustomSnackBar.showError(
           context,
-          'Profile updated, but failed to upload photo. Please try again.',
+          'failed_upload_photo'.tr(),
         );
       } else {
-        CustomSnackBar.showSuccess(context, 'Profile updated successfully!');
+        CustomSnackBar.showSuccess(context, 'profile_updated'.tr());
         Navigator.pop(context, true);
       }
     }
@@ -141,13 +142,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final primaryColor = Theme.of(context).colorScheme.primary;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Profile')),
+      appBar: AppBar(title: Text('edit_profile'.tr())),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(25.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
               // PHOTO PICKER
               Center(
                 child: Stack(
@@ -191,19 +195,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               // TEXT FIELDS
               _buildTextField(
-                'First Name',
+                'first_name'.tr(),
                 _firstNameController,
                 Icons.person_outline,
               ),
               const SizedBox(height: 15),
               _buildTextField(
-                'Last Name',
+                'last_name'.tr(),
                 _lastNameController,
                 Icons.person_outline,
               ),
               const SizedBox(height: 15),
               _buildTextField(
-                'Email Address',
+                'email'.tr(),
                 _emailController,
                 Icons.email_outlined,
                 isEmail: true,
@@ -213,7 +217,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'Academic Details',
+                  'academic_info'.tr(),
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -223,7 +227,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(height: 15),
               _buildTextField(
-                'Registration Number',
+                'reg_number'.tr(),
                 _regNumberController,
                 Icons.badge_outlined,
               ),
@@ -231,7 +235,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               // DROPDOWNS
               _buildDropdownField(
-                label: 'Classroom',
+                label: 'classroom'.tr(),
                 currentValue: _selectedClassroom,
                 options: _classroomOptions,
                 icon: Icons.class_outlined,
@@ -239,7 +243,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(height: 15),
               _buildDropdownField(
-                label: 'Study Stream',
+                label: 'study_stream'.tr(),
                 currentValue: _selectedStudyStream,
                 options: _studyStreamOptions,
                 icon: Icons.book_outlined,
@@ -248,7 +252,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               const SizedBox(height: 15),
 
               _buildTextField(
-                'Parent Email',
+                'parent_email'.tr(),
                 _parentEmailController,
                 Icons.family_restroom,
                 isEmail: true,
@@ -270,9 +274,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             strokeWidth: 3,
                           ),
                         )
-                      : const Text(
-                          'Save Changes',
-                          style: TextStyle(
+                      : Text(
+                          'save_changes'.tr(),
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
@@ -283,8 +287,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  ),
+);
+}
 
   // Text Field Helper
   Widget _buildTextField(
@@ -297,7 +303,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       controller: controller,
       keyboardType: isEmail ? TextInputType.emailAddress : TextInputType.text,
       validator: (value) => (value == null || value.trim().isEmpty)
-          ? 'This field is required'
+          ? 'field_required'.tr()
           : null,
       decoration: InputDecoration(labelText: label, prefixIcon: Icon(icon)),
     );
@@ -322,7 +328,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         return DropdownMenuItem<String>(value: val, child: Text(val));
       }).toList(),
       onChanged: onChanged,
-      validator: (value) => value == null ? 'Please select an option' : null,
+      validator: (value) => value == null ? 'select_option'.tr() : null,
     );
   }
 }

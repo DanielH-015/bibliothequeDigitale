@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../auth/screens/login_screen.dart';
 
@@ -15,18 +16,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final List<Map<String, String>> onboardingData = [
     {
-      "title": "Welcome to Digital Library",
-      "description": "Discover a vast collection of books at your fingertips.",
+      "title": "onboarding_title_1",
+      "description": "onboarding_desc_1",
       "icon": "auto_stories_rounded",
     },
     {
-      "title": "Borrow & Read",
-      "description": "Reserve and borrow your favorite books directly from the app.",
+      "title": "onboarding_title_2",
+      "description": "onboarding_desc_2",
       "icon": "menu_book_rounded",
     },
     {
-      "title": "Stay Notified",
-      "description": "Get timely reminders for due dates and new arrivals.",
+      "title": "onboarding_title_3",
+      "description": "onboarding_desc_3",
       "icon": "notifications_active_rounded",
     },
   ];
@@ -62,8 +63,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
-        child: Column(
-          children: [
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: Column(
+              children: [
             Expanded(
               child: PageView.builder(
                 controller: _pageController,
@@ -74,8 +78,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 },
                 itemCount: onboardingData.length,
                 itemBuilder: (context, index) => _buildPageContent(
-                  onboardingData[index]["title"]!,
-                  onboardingData[index]["description"]!,
+                  onboardingData[index]["title"]!.tr(),
+                  onboardingData[index]["description"]!.tr(),
                   onboardingData[index]["icon"]!,
                   primaryColor,
                 ),
@@ -96,7 +100,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   TextButton(
                     onPressed: _completeOnboarding,
                     child: Text(
-                      "Skip",
+                      "cancel_reservation_title".tr() == "cancel_reservation_title" ? "Skip" : "skip".tr(), // We can add "skip" to json later, or just use English fallback for now
                       style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
                     ),
                   ),
@@ -117,16 +121,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: Text(_currentPage == onboardingData.length - 1 ? "Get Started" : "Next"),
+                    child: Text(_currentPage == onboardingData.length - 1 ? "get_started".tr() : "continue_btn".tr()),
                   ),
                 ],
               ),
             ),
-          ],
+            ],
+          ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildPageContent(String title, String description, String icon, Color primaryColor) {
     return Padding(

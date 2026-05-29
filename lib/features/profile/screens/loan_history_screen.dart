@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../core/network/api_client.dart';
-import 'package:intl/intl.dart';
 
 class LoanHistoryScreen extends StatefulWidget {
   const LoanHistoryScreen({super.key});
@@ -44,14 +44,17 @@ class _LoanHistoryScreenState extends State<LoanHistoryScreen> {
     final primaryColor = Theme.of(context).colorScheme.primary;
 
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: CustomScrollView(
+            slivers: [
           SliverAppBar(
             expandedHeight: 120.0,
             floating: false,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
-              title: const Text('Loan History', style: TextStyle(fontWeight: FontWeight.bold)),
+              title: Text('loan_history'.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
               titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
               background: Container(
                 decoration: BoxDecoration(
@@ -77,7 +80,7 @@ class _LoanHistoryScreenState extends State<LoanHistoryScreen> {
                     Icon(Icons.history_edu, size: 80, color: Colors.grey.withValues(alpha: 0.5)),
                     const SizedBox(height: 20),
                     Text(
-                      "No loan history found.",
+                      'no_loan_history'.tr(),
                       style: TextStyle(color: Colors.grey.shade600, fontSize: 18),
                     ),
                   ],
@@ -94,13 +97,13 @@ class _LoanHistoryScreenState extends State<LoanHistoryScreen> {
                     final isReturned = loan['status'] == 'RETURNED';
                     final isLate = loan['status'] == 'LATE';
                     
-                    final bookTitle = loan['book'] != null ? loan['book']['title'] : 'Unknown Book';
+                    final bookTitle = loan['book'] != null ? loan['book']['title'] : 'unknown_book'.tr();
                     final bookCover = loan['book'] != null ? loan['book']['coverImage'] : null;
                     final loanDate = DateFormat('dd MMM yyyy').format(DateTime.parse(loan['loanDate']));
                     final dueDate = DateFormat('dd MMM yyyy').format(DateTime.parse(loan['dueDate']));
                     final returnDate = loan['returnDate'] != null 
                         ? DateFormat('dd MMM yyyy').format(DateTime.parse(loan['returnDate'])) 
-                        : 'Not returned yet';
+                        : 'not_returned_yet'.tr();
 
                     return Container(
                       margin: const EdgeInsets.only(bottom: 15),
@@ -180,7 +183,7 @@ class _LoanHistoryScreenState extends State<LoanHistoryScreen> {
                                       Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          const Text('Borrowed on', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                                          Text('borrowed_on'.tr(), style: const TextStyle(fontSize: 11, color: Colors.grey)),
                                           const SizedBox(height: 2),
                                           Text(loanDate, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                                         ],
@@ -188,7 +191,7 @@ class _LoanHistoryScreenState extends State<LoanHistoryScreen> {
                                       Column(
                                         crossAxisAlignment: CrossAxisAlignment.end,
                                         children: [
-                                          Text(isReturned ? 'Returned on' : 'Due date', style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                                          Text(isReturned ? 'returned_on'.tr() : 'due_date'.tr(), style: const TextStyle(fontSize: 11, color: Colors.grey)),
                                           const SizedBox(height: 2),
                                           Text(isReturned ? returnDate : dueDate, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                                         ],
@@ -209,6 +212,8 @@ class _LoanHistoryScreenState extends State<LoanHistoryScreen> {
             ),
         ],
       ),
-    );
-  }
+    ),
+  ),
+);
+}
 }

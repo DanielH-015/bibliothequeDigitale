@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:frontend/features/catalogue/screens/book_detail_screen.dart';
 import '../../../core/network/api_client.dart';
 
@@ -55,6 +56,13 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
     super.dispose();
   }
 
+  int _getCrossAxisCount(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width > 900) return 5;
+    if (width > 600) return 3;
+    return 2;
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -73,7 +81,7 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
             controller: _searchController,
             onChanged: _filterBooks,
             decoration: InputDecoration(
-              hintText: 'Search by title or author...',
+              hintText: 'search'.tr(),
               prefixIcon: const Icon(Icons.search),
               suffixIcon: _searchController.text.isNotEmpty
                   ? IconButton(
@@ -106,9 +114,8 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
                     horizontal: 20,
                     vertical: 10,
                   ),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount:
-                        2, // 2 books per row to look like a library shelf
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: _getCrossAxisCount(context),
                     childAspectRatio:
                         0.65, // Taller than wide to match book proportions
                     crossAxisSpacing: 15,
@@ -223,8 +230,8 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
                                     ),
                                     child: Text(
                                       available > 0
-                                          ? 'Available'
-                                          : 'Out of Stock',
+                                          ? 'available'.tr()
+                                          : 'out_of_stock'.tr(),
                                       style: TextStyle(
                                         fontSize: 10,
                                         fontWeight: FontWeight.bold,

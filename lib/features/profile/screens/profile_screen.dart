@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../core/network/api_client.dart';
 import 'edit_profile_screen.dart';
 import 'loan_history_screen.dart';
@@ -127,11 +128,14 @@ final String? profileImageUrl = profileI['studentPhoto'];
           }
         },
         icon: const Icon(Icons.edit, color: Colors.white),
-        label: const Text('Edit', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        label: Text('edit'.tr(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 20),
@@ -176,13 +180,13 @@ final String? profileImageUrl = profileI['studentPhoto'];
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Academic Information',
+                    'academic_info'.tr(),
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.secondary),
                   ),
                   const Divider(height: 30),
-                  _buildInfoRow(Icons.badge_outlined, 'Registration Number', regNumber),
-                  _buildInfoRow(Icons.class_outlined, 'Classroom', classroom),
-                  _buildInfoRow(Icons.book_outlined, 'Study Stream', studyStream),
+                  _buildInfoRow(Icons.badge_outlined, 'reg_number'.tr(), regNumber),
+                  _buildInfoRow(Icons.class_outlined, 'classroom'.tr(), classroom),
+                  _buildInfoRow(Icons.book_outlined, 'study_stream'.tr(), studyStream),
                 ],
               ),
             ),
@@ -203,7 +207,7 @@ final String? profileImageUrl = profileI['studentPhoto'];
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: Icon(Icons.history_edu, color: Theme.of(context).colorScheme.primary),
-                    title: const Text('View Loan History', style: TextStyle(fontWeight: FontWeight.bold)),
+                    title: Text('view_loan_history'.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
                     onTap: () {
                       Navigator.push(
@@ -218,7 +222,8 @@ final String? profileImageUrl = profileI['studentPhoto'];
           ],
         ),
       ),
-    );
-
-  }
+    ),
+  ),
+);
+}
 }

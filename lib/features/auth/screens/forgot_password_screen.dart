@@ -49,10 +49,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       body: SafeArea(
         bottom: false,
         child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // HEADER (Logo, Title and Back Button)
-              Stack(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Column(
+                children: [
+                  // HEADER (Logo, Title and Back Button)
+                  Stack(
                 children: [
                   Container(
                     height: 200,
@@ -137,8 +140,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  ),
+);
+}
 
   Widget _buildFormView() {
     final primaryColor = Theme.of(context).colorScheme.primary;

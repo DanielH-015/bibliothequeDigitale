@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../core/network/api_client.dart';
-import 'package:intl/intl.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -49,39 +49,20 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
 
-  // i18n Simulation based on simple device locale or chosen language.
-  // We can expand this with a proper localization package later.
   String _translateNotification(String typeCode, Map<String, dynamic> payload) {
-    // Determine language (Defaulting to EN, with FR fallback if needed).
-    // Let's assume we read from SharedPreferences or Localizations.localeOf(context).
-    // For now, we will just provide English/French text based on simple logic or hardcoded English as default.
-    bool isFrench = Localizations.localeOf(context).languageCode == 'fr';
-
     switch (typeCode) {
       case 'WELCOME':
-        return isFrench
-            ? "Bienvenue, ${payload['userName']} ! Votre compte a été créé avec succès."
-            : "Welcome, ${payload['userName']}! Your account was successfully created.";
+        return 'notif_welcome'.tr(args: [payload['userName'] ?? '']);
       case 'NEW_BOOK':
-        return isFrench
-            ? "Un nouveau livre '${payload['bookTitle']}' a été publié."
-            : "A new book '${payload['bookTitle']}' has been published.";
+        return 'notif_new_book'.tr(args: [payload['bookTitle'] ?? '']);
       case 'REMINDER_24H':
-        return isFrench
-            ? "Rappel : Votre document '${payload['bookTitle']}' est à rendre demain."
-            : "Reminder: Your document '${payload['bookTitle']}' is due tomorrow.";
+        return 'notif_reminder_24h'.tr(args: [payload['bookTitle'] ?? '']);
       case 'REMINDER_TODAY':
-        return isFrench
-            ? "Rappel : Votre document '${payload['bookTitle']}' est à rendre aujourd'hui."
-            : "Reminder: Your document '${payload['bookTitle']}' is due today.";
+        return 'notif_reminder_today'.tr(args: [payload['bookTitle'] ?? '']);
       case 'REMINDER_LATE_1D':
-        return isFrench
-            ? "Alerte : Le document '${payload['bookTitle']}' est en retard d'un jour !"
-            : "Alert: The document '${payload['bookTitle']}' is 1 day overdue!";
+        return 'notif_late_1d'.tr(args: [payload['bookTitle'] ?? '']);
       case 'OVERDUE_MANUAL_ALERT':
-        return isFrench
-            ? "Alerte : Vous devez rendre le document '${payload['bookTitle']}' immédiatement !"
-            : "Alert: You must return the document '${payload['bookTitle']}' immediately!";
+        return 'notif_manual_alert'.tr(args: [payload['bookTitle'] ?? '']);
       default:
         return "Notification: $typeCode";
     }
@@ -104,14 +85,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final primaryColor = Theme.of(context).colorScheme.primary;
 
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: CustomScrollView(
+            slivers: [
+              SliverAppBar(
             expandedHeight: 120.0,
             floating: false,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
-              title: const Text('Notifications', style: TextStyle(fontWeight: FontWeight.bold)),
+              title: Text('notifications'.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
               titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
               background: Container(
                 decoration: BoxDecoration(
@@ -137,7 +121,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     Icon(Icons.notifications_off_outlined, size: 80, color: Colors.grey.withValues(alpha: 0.5)),
                     const SizedBox(height: 20),
                     Text(
-                      "No notifications yet.",
+                      'no_notifications'.tr(),
                       style: TextStyle(color: Colors.grey.shade600, fontSize: 18),
                     ),
                   ],
@@ -272,6 +256,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             ),
         ],
       ),
-    );
-  }
+    ),
+  ),
+);
+}
 }

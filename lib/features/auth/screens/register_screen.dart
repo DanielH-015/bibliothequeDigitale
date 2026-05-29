@@ -64,10 +64,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
       body: SafeArea(
         bottom: false,
         child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // HEADER (Logo, Title and Back Button)
-              Stack(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Column(
+                children: [
+                  // HEADER (Logo, Title and Back Button)
+                  Stack(
                 children: [
                   Container(
                     height: 200,
@@ -314,6 +317,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  ),
+);
+}
 }

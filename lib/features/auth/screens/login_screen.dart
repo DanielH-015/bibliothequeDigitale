@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../core/network/api_client.dart';
 import '../../../shared/widgets/custom_snackbar.dart';
 import '../../home/screens/home_screen.dart';
@@ -72,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       } else {
         if (!mounted) return;
-        CustomSnackBar.showError(context, 'Incorrect email or password');
+        CustomSnackBar.showError(context, 'incorrect_credentials'.tr());
       }
     }
   }
@@ -95,8 +96,11 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         bottom: false,
         child: SingleChildScrollView(
-          child: Column(
-            children: [
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Column(
+                children: [
               // HEADER (Logo and Title)
               Container(
                 height: 200,
@@ -117,18 +121,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    const Text(
-                      'Digital',
-                      style: TextStyle(
+                    Text(
+                      'app_name'.tr().split(' ')[0], // Dynamic first part of app name
+                      style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                         letterSpacing: 1.5,
                       ),
                     ),
-                    const Text(
-                      'Library',
-                      style: TextStyle(
+                    Text(
+                      'app_name'.tr().split(' ').length > 1 ? 'app_name'.tr().split(' ')[1] : '', // Dynamic second part
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w300,
                         color: Colors.white70,
@@ -165,7 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Login',
+                      'login'.tr(),
                       style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
@@ -188,9 +192,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     TextField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                        labelText: 'Email Address',
-                        prefixIcon: Icon(Icons.email_outlined),
+                      decoration: InputDecoration(
+                        labelText: 'email'.tr(),
+                        prefixIcon: const Icon(Icons.email_outlined),
                       ),
                     ),
                     const SizedBox(height: 15),
@@ -200,7 +204,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _passwordController,
                       obscureText: _obscurePassword,
                       decoration: InputDecoration(
-                        labelText: 'Password',
+                        labelText: 'password'.tr(),
                         prefixIcon: const Icon(Icons.lock_outline),
                         suffixIcon: IconButton(
                           icon: Icon(
@@ -232,7 +236,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
 
                         child: Text(
-                          'Forgot Password?',
+                          'forgot_password'.tr(),
                           style: TextStyle(
                             color: primaryColor,
                             fontWeight: FontWeight.bold,
@@ -293,12 +297,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                   strokeWidth: 3,
                                 ),
                               )
-                            : const Row(
+                            : Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    'Sign In',
-                                    style: TextStyle(
+                                    'login_button'.tr(),
+                                    style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                       color: Colors
@@ -307,9 +311,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                           1.2, // Spacing for a premium look
                                     ),
                                   ),
-                                  SizedBox(width: 8),
+                                  const SizedBox(width: 8),
                                   // 3. Directional Icon
-                                  Icon(
+                                  const Icon(
                                     Icons.arrow_forward_rounded,
                                     color: Colors.white,
                                     size: 22,
@@ -404,7 +408,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         Text(
-                          'Don\'t have an account?',
+                          "${'no_account'.tr().split('?')[0]}?",
                           style: TextStyle(
                             color: Theme.of(
                               context,
@@ -423,7 +427,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
 
                           child: Text(
-                            'Create an account',
+                            'no_account'.tr().split('?')[1].trim(),
                             style: TextStyle(
                               color: primaryColor,
                               fontWeight: FontWeight.bold,
@@ -440,6 +444,8 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  ),
+);
+}
 }

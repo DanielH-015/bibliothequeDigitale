@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/screens/login_screen.dart';
-import 'features/onboarding/screens/onboarding_screen.dart';
+import 'features/onboarding/screens/language_selection_screen.dart';
 
 void main() async {
   // Required when using 'await' inside the main() function
   WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
   
   // Read the saved theme preference before launching the app
   final prefs = await SharedPreferences.getInstance();
@@ -17,7 +19,15 @@ void main() async {
   if (isDarkMode != null) {
     AppTheme.themeNotifier.value = isDarkMode ? ThemeMode.dark : ThemeMode.light;
   }
-  runApp(LibraryApp(isFirstLaunch: isFirstLaunch));
+  
+  runApp(
+    EasyLocalization(
+      supportedLocales: const [Locale('en'), Locale('fr')],
+      path: 'assets/translations', // path to translation files
+      fallbackLocale: const Locale('en'),
+      child: LibraryApp(isFirstLaunch: isFirstLaunch),
+    ),
+  );
 }
 
 class LibraryApp extends StatelessWidget {
@@ -33,10 +43,13 @@ class LibraryApp extends StatelessWidget {
         return MaterialApp(
           title: 'Digital Library',
           debugShowCheckedModeBanner: false,
+          localizationsDelegates: context.localizationDelegates,
+          supportedLocales: context.supportedLocales,
+          locale: context.locale,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: currentMode, // The app now listens to the global variable!
-          home: isFirstLaunch ? const OnboardingScreen() : const LoginScreen(),
+          home: isFirstLaunch ? const LanguageSelectionScreen() : const LoginScreen(),
         );
       },
     );
