@@ -37,6 +37,13 @@ export class LoginComponent {
 
   public onSubmit(): void {
     if (this.loginForm.invalid) {
+      Object.keys(this.loginForm.controls).forEach(key => {
+        const control = this.loginForm.get(key);
+        if (control) {
+          control.markAsTouched();
+        }
+      });
+      this.errorMessage = 'Please fill out all required fields correctly.';
       return;
     }
 
